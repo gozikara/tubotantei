@@ -3,324 +3,340 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#0a1628">
+<meta name="theme-color" content="#101820">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ツボ刑事">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
-<title>ツボ刑事 — 解剖・経穴バトル</title>
+<title>ツボ刑事 — 経穴バトル</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
-    --bg: #0a1628;
-    --card: #111e33;
-    --card2: #16233c;
-    --border: rgba(74,158,255,0.25);
-    --accent: #4a9eff;
-    --gold: #ffc832;
-    --text: #e8eaf0;
-    --muted: #8899aa;
-    --correct: #4aff7f;
-    --wrong: #ff5a6a;
+    --ink: #202830;
+    --frame: #3a4a5a;
+    --panel: #f8f8f0;
+    --panel-sh: #d8d0b8;
+    --box-blue: #4870b0;
+    --box-blue-lt: #a8c0e8;
+    --hp-green: #78c850; --hp-yellow: #f8d030; --hp-red: #f85038;
+    --exp-blue: #4098f8;
     --safe-b: env(safe-area-inset-bottom, 0px);
     --safe-t: env(safe-area-inset-top, 0px);
   }
   html, body { height: 100%; }
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
+    background: #0b0f14; color: #e8eaf0;
+    font-family: 'Hiragino Sans','Noto Sans JP',sans-serif;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
   }
-  #app {
-    max-width: 480px;
-    margin: 0 auto;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    background: radial-gradient(120% 60% at 50% 0%, #12233f 0%, var(--bg) 60%);
-  }
+  #app { max-width: 480px; margin: 0 auto; height: 100dvh; position: relative;
+    display: flex; flex-direction: column; background: #0e1620; }
 
-  /* ===== Top bar ===== */
-  .topbar {
-    padding: calc(10px + var(--safe-t)) 16px 10px;
-    display: flex; align-items: center; gap: 12px;
-    border-bottom: 1px solid var(--border); flex: 0 0 auto;
-  }
-  .badge {
-    width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%;
-    background: radial-gradient(circle at 50% 40%, #1b3a63, #0e1d33);
-    border: 2px solid var(--gold); display: grid; place-items: center; font-size: 1.1rem;
-  }
-  .topbar .who { flex: 1; min-width: 0; }
-  .topbar .who .name { font-weight: 900; font-size: 0.95rem; color: var(--gold); }
-  .topbar .who .lvl { font-size: 0.72rem; color: var(--muted); }
-  .xpbar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; margin-top: 4px; }
-  .xpbar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), #7fc4ff); width: 0%; transition: width .5s; }
-  .coin { font-size: 0.85rem; font-weight: 900; color: var(--gold); white-space: nowrap; }
+  /* pixel-ish text */
+  .pixel { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: .02em; }
 
-  /* ===== Screens ===== */
+  /* ===== Top bar (hidden during battle) ===== */
+  .topbar { padding: calc(9px + var(--safe-t)) 14px 9px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.1); flex: 0 0 auto; background:#111e2e; }
+  .badge { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 50% 40%,#1b3a63,#0e1d33);
+    border: 2px solid #ffc832; display: grid; place-items: center; font-size: 1rem; flex:0 0 auto; }
+  .topbar .name { font-weight: 900; font-size: .9rem; color: #ffc832; }
+  .topbar .lvl { font-size: .68rem; color: #8899aa; }
+  .topbar .coin { margin-left:auto; font-size:.82rem; font-weight:900; color:#ffc832; }
+
   .screen { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
   .screen.hidden { display: none; }
-  .h { font-size: 1.15rem; font-weight: 900; color: var(--gold); margin-bottom: 4px; }
-  .sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
+  .h { font-size: 1.1rem; font-weight: 900; color: #ffc832; margin-bottom: 4px; }
+  .sub { font-size: .78rem; color: #8899aa; margin-bottom: 16px; line-height: 1.6; }
 
-  /* ===== Body map ===== */
-  .map-wrap {
-    position: relative; width: 100%; aspect-ratio: 3/4; max-height: 58vh;
-    margin: 0 auto 18px; border: 1px solid var(--border); border-radius: 18px;
-    background:
-      radial-gradient(80% 50% at 50% 8%, rgba(74,158,255,0.10), transparent 60%),
-      linear-gradient(180deg, #10203a, #0b1424);
-    overflow: hidden;
-  }
+  /* ===== Map ===== */
+  .map-wrap { position: relative; width: 100%; aspect-ratio: 3/4; max-height: 56vh; margin: 0 auto 16px;
+    border: 1px solid rgba(74,158,255,.3); border-radius: 16px;
+    background: radial-gradient(80% 50% at 50% 8%, rgba(74,158,255,.10), transparent 60%), linear-gradient(180deg,#10203a,#0b1424); overflow: hidden; }
   .body-svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .5; }
-  .pin {
-    position: absolute; transform: translate(-50%, -50%);
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-    cursor: pointer; text-align: center;
-  }
-  .pin .dot {
-    width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
-    font-size: 1.5rem; border: 2px solid var(--gold);
-    background: radial-gradient(circle at 50% 35%, #24466f, #0e1d33);
-    box-shadow: 0 0 0 0 rgba(255,200,50,0.5); transition: transform .12s;
-  }
-  .pin:active .dot { transform: scale(0.9); }
+  .pin { position: absolute; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+  .pin .dot { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 1.4rem;
+    border: 2px solid #ffc832; background: radial-gradient(circle at 50% 35%,#24466f,#0e1d33); transition: transform .12s; }
+  .pin:active .dot { transform: scale(.9); }
   .pin.new .dot { animation: pulse 1.8s infinite; }
   @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(255,200,50,.5)} 70%{box-shadow:0 0 0 12px rgba(255,200,50,0)} 100%{box-shadow:0 0 0 0 rgba(255,200,50,0)} }
-  .pin.cleared .dot { border-color: var(--correct); }
+  .pin.cleared .dot { border-color: #4aff7f; }
   .pin.locked .dot { border-color: rgba(255,255,255,.2); opacity: .5; }
-  .pin .lbl {
-    font-size: .62rem; font-weight: 800; background: rgba(6,14,26,.85);
-    padding: 2px 7px; border-radius: 999px; white-space: nowrap; color: var(--text);
-  }
-  .pin.locked .lbl { color: var(--muted); }
+  .pin .lbl { font-size: .6rem; font-weight: 800; background: rgba(6,14,26,.85); padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
+  .pin.locked .lbl { color: #8899aa; }
 
-  /* ===== Story / dialog ===== */
-  .patient-tag {
-    display: inline-flex; align-items:center; gap:6px; font-size: 0.75rem; color: var(--gold);
-    background: rgba(255,200,50,0.1); padding: 5px 12px; border-radius: 999px;
-    margin-bottom: 14px; font-weight: 700;
-  }
-  .case-info {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    padding: 14px 16px; margin-bottom: 16px; font-size: .82rem; line-height: 1.8;
-  }
-  .case-info b { color: var(--muted); }
-  .dialog { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; min-height: 40px; }
-  .line { display: flex; gap: 10px; align-items: flex-start; animation: fade .3s; }
-  .line .av { font-size: 1.6rem; flex: 0 0 auto; width: 34px; text-align: center; }
-  .line .bubble {
-    background: var(--card2); border: 1px solid var(--border); border-radius: 4px 14px 14px 14px;
-    padding: 10px 14px; font-size: .9rem; line-height: 1.65; flex: 1;
-  }
-  .line.narrator .bubble { background: transparent; border: none; color: var(--muted); font-style: italic; padding: 6px 4px; }
-  .line.monster .bubble { border-color: var(--wrong); background: rgba(255,90,106,0.10); color: #ffd0d5; }
-  .line.detective .bubble { border-color: var(--gold); background: rgba(255,200,50,0.08); }
-  .line .who { display:block; font-size:.66rem; font-weight:800; color:var(--muted); margin-bottom:3px; }
+  /* ===== Story ===== */
+  .patient-tag { display:inline-flex; align-items:center; gap:6px; font-size:.74rem; color:#ffc832;
+    background: rgba(255,200,50,.1); padding:5px 12px; border-radius:999px; margin-bottom:12px; font-weight:700; }
+  .case-info { background:#111e33; border:1px solid rgba(74,158,255,.25); border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:.8rem; line-height:1.8; }
+  .case-info b { color:#8899aa; }
+  .dialog { display:flex; flex-direction:column; gap:11px; margin-bottom:16px; }
+  .line { display:flex; gap:9px; align-items:flex-start; animation: fade .3s; }
+  .line .av { font-size:1.5rem; width:32px; text-align:center; flex:0 0 auto; }
+  .line .bubble { background:#16233c; border:1px solid rgba(74,158,255,.25); border-radius:4px 12px 12px 12px; padding:9px 13px; font-size:.87rem; line-height:1.6; flex:1; }
+  .line.narrator .bubble { background:transparent; border:none; color:#8899aa; font-style:italic; padding:5px 4px; }
+  .line.monster .bubble { border-color:#f85038; background:rgba(248,80,56,.10); color:#ffd0d5; }
+  .line.detective .bubble { border-color:#ffc832; background:rgba(255,200,50,.08); }
+  .line .who { display:block; font-size:.64rem; font-weight:800; color:#8899aa; margin-bottom:3px; }
 
-  /* ===== Battle ===== */
-  .battle-stage {
-    background: radial-gradient(120% 80% at 50% 20%, #1a2f52 0%, #0c1a30 70%);
-    border: 1px solid var(--border); border-radius: 18px; padding: 20px 18px;
-    text-align: center; margin-bottom: 16px; position: relative; overflow: hidden;
-  }
-  .mon-name { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
-  .mon-intro { font-size:.72rem; color: var(--wrong); margin-top:2px; }
-  .mon-big { font-size: 4.4rem; line-height: 1.1; margin: 6px 0; display: inline-block; transition: transform .15s; }
-  .mon-big.hit { animation: shake .4s; }
-  .mon-big.faint { animation: faint .8s forwards; }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px) rotate(-6deg)} 40%{transform:translateX(10px) rotate(6deg)} 60%{transform:translateX(-8px)} 80%{transform:translateX(8px)} }
-  @keyframes faint { to { transform: translateY(30px) scale(.4) rotate(20deg); opacity: 0; } }
-  .hpwrap { max-width: 240px; margin: 8px auto 0; }
-  .hp-label { font-size: 0.7rem; color: var(--muted); display:flex; justify-content:space-between; margin-bottom:3px; }
-  .hpbar { height: 12px; background: rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; border:1px solid rgba(255,255,255,.1); }
-  .hpbar > i { display:block; height:100%; background: linear-gradient(90deg, var(--wrong), #ff8a5a); transition: width .5s; }
-  .float-dmg {
-    position: absolute; top: 40%; left: 50%; transform: translateX(-50%);
-    font-size: 1.6rem; font-weight: 900; color: var(--gold); pointer-events: none; opacity: 0;
-  }
-  .float-dmg.go { animation: floatUp 1s forwards; }
-  @keyframes floatUp { 0%{opacity:1; transform: translate(-50%,0)} 100%{opacity:0; transform: translate(-50%,-60px)} }
+  /* ============================================================
+     BATTLE — faithful Pokémon layout
+     ============================================================ */
+  #battle { position: absolute; inset: 0; z-index: 60; display: none; flex-direction: column; background:#000; }
+  #battle.show { display: flex; }
 
-  .q-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
-  .q-count { font-size: 0.72rem; color: var(--accent); font-weight: 800; margin-bottom: 8px; }
-  .q-text { font-size: 1rem; font-weight: 700; line-height: 1.6; }
-  .choices { display: flex; flex-direction: column; gap: 10px; }
-  .choice {
-    background: var(--card2); border: 1.5px solid var(--border); border-radius: 12px;
-    padding: 15px 16px; font-size: 0.95rem; text-align: left; color: var(--text);
-    cursor: pointer; transition: transform .1s, border-color .15s, background .15s;
-    font-family: inherit; line-height: 1.5;
+  .field {
+    position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden;
+    background:
+      linear-gradient(180deg, #78b8e8 0%, #a8d8f0 42%, #cfeafc 55%, #cfeafc 100%);
   }
-  .choice:active { transform: scale(0.98); }
-  .choice.correct { border-color: var(--correct); background: rgba(74,255,127,0.14); }
-  .choice.wrong { border-color: var(--wrong); background: rgba(255,90,106,0.14); }
-  .choice:disabled { cursor: default; }
-  .explain {
-    margin-top: 14px; font-size: 0.85rem; line-height: 1.7;
-    background: rgba(74,158,255,0.08); border-left: 3px solid var(--accent);
-    padding: 12px 14px; border-radius: 8px; display: none;
+  /* ground band */
+  .field::after {
+    content:""; position:absolute; left:0; right:0; bottom:0; height:46%;
+    background: linear-gradient(180deg, #b8e070 0%, #98c850 40%, #86bc44 100%);
   }
-  .explain.show { display: block; }
-  .explain b { color: var(--gold); }
 
-  /* ===== Dex ===== */
-  .dex-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  .dex-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
-  .dex-card.empty { opacity: .5; text-align:center; padding: 22px; font-size:.85rem; color:var(--muted); }
-  .dex-card h3 { font-size: 1rem; color: var(--gold); margin-bottom: 2px; }
-  .dex-card h3 small { font-weight: 400; color: var(--muted); font-size: .72rem; margin-left: 6px; }
-  .dex-card .tag { font-size: .68rem; font-weight: 800; letter-spacing:.05em; text-transform:uppercase; }
-  .dex-card .tag.m { color: var(--wrong); }
-  .dex-card .tag.p { color: var(--accent); }
-  .dex-row { font-size: .82rem; line-height: 1.7; margin-top: 8px; }
-  .dex-row b { color: var(--muted); font-weight:700; }
-  .meridian-pill { display:inline-block; font-size:.68rem; font-weight:800; color:var(--accent);
-    background:rgba(74,158,255,.12); padding:2px 8px; border-radius:999px; margin-left:6px; }
+  /* status plates */
+  .plate { position: absolute; background: var(--panel); color: var(--ink);
+    border: 3px solid var(--frame); box-shadow: inset 0 0 0 2px #fff, 2px 3px 0 rgba(0,0,0,.25);
+    padding: 6px 12px 8px; z-index: 3; }
+  .plate .row1 { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .plate .pname { font-weight: 900; font-size: .86rem; white-space: nowrap; }
+  .plate .plv { font-size:.72rem; font-weight:900; }
+  .hprow { display:flex; align-items:center; gap:5px; margin-top:4px; }
+  .hptag { font-size:.62rem; font-weight:900; font-style:italic; color:#c89000; letter-spacing:.05em; }
+  .hpbar { flex:1; height:7px; background:#485058; border-radius:4px; padding:1px; box-shadow: inset 0 0 0 1px #202830; }
+  .hpbar > i { display:block; height:100%; border-radius:3px; background: var(--hp-green); transition: width .5s ease, background .3s; }
+  .hpnum { font-size:.66rem; font-weight:900; text-align:right; margin-top:2px; }
+  .expwrap { display:flex; align-items:center; gap:5px; margin-top:5px; }
+  .exptag { font-size:.58rem; font-weight:900; color:#3070c0; }
+  .expbar { flex:1; height:4px; background:#485058; border-radius:3px; padding:1px; }
+  .expbar > i { display:block; height:100%; border-radius:2px; background: var(--exp-blue); transition: width .5s; }
 
-  /* ===== Buttons ===== */
-  .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 1rem;
-    font-weight: 900; cursor: pointer; font-family: inherit; transition: opacity .2s, transform .1s; }
-  .btn:active { transform: scale(0.98); }
-  .btn.primary { background: var(--accent); color: #fff; }
-  .btn.gold { background: var(--gold); color: #000; }
-  .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-  .btn:disabled { opacity: .4; cursor: default; }
-  .btn + .btn { margin-top: 10px; }
+  .plate.enemy { top: 14px; left: 12px; border-radius: 6px 6px 16px 6px; min-width: 176px; }
+  .plate.mine  { bottom: 8px; right: 12px; border-radius: 6px 16px 6px 6px; min-width: 190px; }
+
+  /* battler sprites on platforms */
+  .battler { position: absolute; z-index: 2; text-align: center; }
+  .battler .disc { width: 128px; height: 34px; border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 45%, rgba(120,180,70,.9), rgba(120,180,70,0) 70%); margin: -14px auto 0; }
+  .battler .mon { font-size: 5rem; line-height: 1; filter: drop-shadow(2px 4px 3px rgba(0,0,0,.35)); display:inline-block; }
+  .battler.enemy { top: 30px; right: 26px; }
+  .battler.enemy .mon { font-size: 4.4rem; }
+  .battler.mine { bottom: 78px; left: 20px; }
+  .battler.mine .mon { transform: scaleX(-1); }
+  .mon.shake { animation: shake .4s; }
+  .mon.faint { animation: faint .9s forwards; }
+  .mon.enter-e { animation: enterE .5s; }
+  .mon.enter-m { animation: enterM .5s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-9px)} 40%{transform:translateX(9px)} 60%{transform:translateX(-7px)} 80%{transform:translateX(7px)} }
+  .mon.mine.shake { animation: shakeM .4s; }
+  @keyframes shakeM { 0%,100%{transform:scaleX(-1) translateX(0)} 20%{transform:scaleX(-1) translateX(-9px)} 40%{transform:scaleX(-1) translateX(9px)} 60%{transform:scaleX(-1) translateX(-7px)} 80%{transform:scaleX(-1) translateX(7px)} }
+  @keyframes faint { to { transform: translateY(46px) scale(.7); opacity: 0; } }
+  @keyframes enterE { from { transform: translateX(90px); opacity:0 } to { transform: translateX(0); opacity:1 } }
+  @keyframes enterM { from { transform: scaleX(-1) translateX(-90px); opacity:0 } to { transform: scaleX(-1) translateX(0); opacity:1 } }
+  .flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:4; }
+  .flash.go { animation: flash .28s; }
+  @keyframes flash { 0%{opacity:0} 30%{opacity:.75} 100%{opacity:0} }
+
+  /* bottom control area */
+  .control { flex: 0 0 auto; padding: 6px 8px calc(8px + var(--safe-b)); background: #202830; }
+  .textbox { position: relative; background: var(--panel); color: var(--ink);
+    border: 3px solid var(--box-blue); box-shadow: inset 0 0 0 3px var(--box-blue-lt); border-radius: 10px;
+    min-height: 92px; padding: 14px 16px; font-size: .96rem; line-height: 1.55; font-weight: 700; display:flex; align-items:center; }
+  .textbox .cursor { position:absolute; right:12px; bottom:8px; color:var(--box-blue); animation: blink 1s steps(1) infinite; font-size:.9rem; }
+  @keyframes blink { 50%{opacity:0} }
+
+  /* command / move panels overlay the textbox area */
+  .panel-row { display:flex; gap:6px; margin-top:6px; }
+  .cmd-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; flex:1; }
+  .cmd {
+    background: var(--panel); color: var(--ink); border: 3px solid var(--box-blue);
+    box-shadow: inset 0 0 0 2px var(--box-blue-lt); border-radius: 9px; padding: 13px 10px 13px 26px;
+    font-size: .95rem; font-weight: 900; text-align: left; position: relative; cursor: pointer; font-family: inherit;
+  }
+  .cmd::before { content:"▶"; position:absolute; left:9px; top:50%; transform:translateY(-50%); color:var(--box-blue); opacity:0; font-size:.8rem; }
+  .cmd:active { background:#eef2ff; }
+  .cmd.sel::before { opacity:1; }
+
+  .move-list { display:flex; flex-direction:column; gap:5px; flex:1.4; background:var(--panel);
+    border:3px solid var(--box-blue); box-shadow: inset 0 0 0 2px var(--box-blue-lt); border-radius:9px; padding:9px 8px; }
+  .move { text-align:left; background:none; border:none; color:var(--ink); font-family:inherit; font-weight:900; font-size:.9rem;
+    padding:6px 8px 6px 22px; position:relative; cursor:pointer; border-radius:5px; line-height:1.25; }
+  .move::before { content:"▶"; position:absolute; left:6px; top:9px; color:var(--box-blue); opacity:0; font-size:.72rem; }
+  .move:active { background:#eef2ff; }
+  .move small { display:block; font-size:.64rem; font-weight:700; color:#607080; }
+  .move-info { flex:1; background:var(--panel); border:3px solid var(--box-blue); box-shadow: inset 0 0 0 2px var(--box-blue-lt);
+    border-radius:9px; padding:10px; color:var(--ink); display:flex; flex-direction:column; justify-content:center; gap:6px; }
+  .move-info .mi-pp { font-size:.72rem; font-weight:900; }
+  .move-info .mi-type { align-self:flex-start; font-size:.66rem; font-weight:900; color:#fff; background:#7050a0; padding:2px 9px; border-radius:4px; }
+  .move-info .mi-hint { font-size:.66rem; color:#607080; font-weight:700; line-height:1.4; }
+
   .hidden { display: none !important; }
 
-  /* ===== Bottom nav ===== */
-  .nav { flex: 0 0 auto; display: flex; border-top: 1px solid var(--border); background: var(--card); padding-bottom: var(--safe-b); }
-  .nav button { flex: 1; background: none; border: none; color: var(--muted); padding: 10px 4px;
-    font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    font-size: 0.66rem; font-weight: 700; }
-  .nav button .ic { font-size: 1.3rem; }
-  .nav button.active { color: var(--accent); }
+  /* ===== Buttons (menus) ===== */
+  .btn { width: 100%; padding: 15px; border: none; border-radius: 11px; font-size: 1rem; font-weight: 900; cursor: pointer; font-family: inherit; transition: opacity .2s, transform .1s; }
+  .btn:active { transform: scale(.98); }
+  .btn.primary { background: #4a9eff; color: #fff; }
+  .btn.gold { background: #ffc832; color: #000; }
+  .btn.ghost { background: transparent; color: #8899aa; border: 1px solid rgba(74,158,255,.25); }
+  .btn + .btn { margin-top: 9px; }
+
+  /* ===== Dex ===== */
+  .dex-grid { display:grid; grid-template-columns:1fr; gap:11px; }
+  .dex-card { background:#111e33; border:1px solid rgba(74,158,255,.25); border-radius:12px; padding:15px; }
+  .dex-card.empty { opacity:.5; text-align:center; padding:22px; font-size:.85rem; color:#8899aa; }
+  .dex-card h3 { font-size:.98rem; color:#ffc832; margin-bottom:2px; }
+  .dex-card h3 small { font-weight:400; color:#8899aa; font-size:.7rem; margin-left:6px; }
+  .dex-card .tag { font-size:.66rem; font-weight:800; letter-spacing:.05em; }
+  .dex-card .tag.m { color:#f85038; } .dex-card .tag.p { color:#4a9eff; }
+  .dex-row { font-size:.8rem; line-height:1.7; margin-top:7px; } .dex-row b { color:#8899aa; }
+  .meridian-pill { display:inline-block; font-size:.66rem; font-weight:800; color:#4a9eff; background:rgba(74,158,255,.12); padding:2px 8px; border-radius:999px; margin-left:6px; }
 
   /* ===== Training ===== */
-  .stat-card { background: var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; }
-  .stat-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.05); }
-  .stat-row:last-child { border-bottom:none; }
-  .stat-name { font-size:.9rem; font-weight:700; }
-  .stat-name small { display:block; color:var(--muted); font-weight:400; font-size:.72rem; }
-  .stat-val { font-size:1rem; font-weight:900; color:var(--gold); min-width:36px; text-align:center; }
-  .stat-up { width:34px; height:34px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-size:1.2rem; font-weight:900; cursor:pointer; }
+  .stat-card { background:#111e33; border:1px solid rgba(74,158,255,.25); border-radius:12px; padding:15px; margin-bottom:12px; }
+  .stat-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.05); }
+  .stat-row:last-child { border:none; }
+  .stat-name { font-size:.88rem; font-weight:700; } .stat-name small { display:block; color:#8899aa; font-weight:400; font-size:.7rem; }
+  .stat-val { font-size:1rem; font-weight:900; color:#ffc832; min-width:34px; text-align:center; }
+  .stat-up { width:32px; height:32px; border-radius:7px; border:none; background:#4a9eff; color:#fff; font-size:1.1rem; font-weight:900; cursor:pointer; }
   .stat-up:disabled { opacity:.3; }
 
-  /* ===== Result overlay ===== */
-  .overlay { position: absolute; inset: 0; background: rgba(6,14,26,0.92); display: none;
-    flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center;
-    z-index: 50; backdrop-filter: blur(4px); }
-  .overlay.show { display: flex; animation: fade .3s; }
-  @keyframes fade { from{opacity:0} to{opacity:1} }
-  .overlay .big-emoji { font-size: 4rem; margin-bottom: 12px; }
-  .overlay h2 { font-size: 1.5rem; color: var(--gold); margin-bottom: 8px; }
-  .overlay p { font-size: 0.92rem; color: var(--text); line-height: 1.8; margin-bottom: 8px; white-space: pre-wrap; }
-  .reward { font-size: 1.05rem; font-weight: 900; color: var(--correct); margin: 10px 0 20px; white-space: pre-wrap; }
-  .overlay .btn { max-width: 280px; }
+  /* ===== Nav ===== */
+  .nav { flex:0 0 auto; display:flex; border-top:1px solid rgba(255,255,255,.1); background:#111e2e; padding-bottom:var(--safe-b); }
+  .nav button { flex:1; background:none; border:none; color:#8899aa; padding:9px 4px; font-family:inherit; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:3px; font-size:.64rem; font-weight:700; }
+  .nav button .ic { font-size:1.25rem; } .nav button.active { color:#4a9eff; }
 
-  .hint-small { font-size:.72rem; color:var(--muted); margin-top:14px; text-align:center; line-height:1.7; }
+  @keyframes fade { from{opacity:0} to{opacity:1} }
 </style>
 </head>
 <body>
 <div id="app">
 
-  <div class="topbar">
+  <div class="topbar" id="topbar">
     <div class="badge">⚔️</div>
-    <div class="who">
-      <div class="name">ツボ刑事</div>
-      <div class="lvl" id="lvl-text">Lv.1</div>
-      <div class="xpbar"><i id="xp-fill"></i></div>
-    </div>
+    <div><div class="name">ツボ刑事</div><div class="lvl" id="lvl-text">Lv.1</div></div>
     <div class="coin" id="coin">🪙 0</div>
   </div>
 
-  <!-- ===== MAP ===== -->
+  <!-- MAP -->
   <div class="screen" id="screen-map">
     <div class="h">🗺 事件マップ</div>
-    <div class="sub">身体の各所で「症状の事件」が発生中。光るピンをタップして捜査を開始せよ。原因筋とツボを見抜き、症状モンスターを鎮めろ。</div>
+    <div class="sub">光るピンをタップして捜査開始。弱点の経穴(ツボ)を見抜いて症状モンスターを鎮めろ。</div>
     <div class="map-wrap" id="map-wrap">
       <svg class="body-svg" viewBox="0 0 100 133" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <g fill="none" stroke="#4a9eff" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round">
           <circle cx="50" cy="15" r="8"/>
           <path d="M43 22 Q50 27 57 22 L64 34 L58 40 L58 70 Q50 74 42 70 L42 40 L36 34 Z"/>
-          <path d="M42 40 L30 44 L26 62"/>
-          <path d="M58 40 L70 44 L74 62"/>
-          <path d="M46 70 L42 108 L44 120"/>
-          <path d="M54 70 L58 108 L56 120"/>
+          <path d="M42 40 L30 44 L26 62"/><path d="M58 40 L70 44 L74 62"/>
+          <path d="M46 70 L42 108 L44 120"/><path d="M54 70 L58 108 L56 120"/>
         </g>
       </svg>
-      <!-- pins injected -->
     </div>
-    <div class="hint-small">解決するたびに図鑑へツボ・筋肉が登録され、経験値でレベルが上がります。</div>
+    <div class="sub" style="text-align:center">解決するたびに図鑑へツボ・筋肉が登録され、経験値でレベルが上がります。</div>
   </div>
 
-  <!-- ===== STORY ===== -->
+  <!-- STORY -->
   <div class="screen hidden" id="screen-story">
     <div class="h" id="story-title"></div>
     <span class="patient-tag" id="story-patient"></span>
     <div class="case-info" id="story-caseinfo"></div>
     <div class="dialog" id="story-dialog"></div>
     <button class="btn ghost" id="btn-advance">▼ つづき</button>
-    <button class="btn primary hidden" id="btn-start-battle">🔍 捜査開始(バトル)</button>
+    <button class="btn primary hidden" id="btn-start-battle">⚔️ バトル開始</button>
     <button class="btn ghost" onclick="go('map')">← マップに戻る</button>
   </div>
 
-  <!-- ===== BATTLE ===== -->
-  <div class="screen hidden" id="screen-battle">
-    <div class="battle-stage">
-      <div class="mon-name" id="b-monname"></div>
-      <div class="mon-intro" id="b-monintro"></div>
-      <div class="mon-big" id="b-monemoji">😵</div>
-      <div class="float-dmg" id="b-dmg"></div>
-      <div class="hpwrap">
-        <div class="hp-label"><span id="b-hplabel">症状の抵抗</span><span id="b-hpnum"></span></div>
-        <div class="hpbar"><i id="b-hpfill"></i></div>
-      </div>
-    </div>
-    <div class="q-box">
-      <div class="q-count" id="b-qcount"></div>
-      <div class="q-text" id="b-qtext"></div>
-    </div>
-    <div class="choices" id="b-choices"></div>
-    <div class="explain" id="b-explain"></div>
-    <button class="btn primary hidden" id="b-next" style="margin-top:14px;">次へ ▶</button>
-  </div>
-
-  <!-- ===== DEX ===== -->
+  <!-- DEX -->
   <div class="screen hidden" id="screen-dex">
     <div class="h">📖 経穴・解剖 図鑑</div>
-    <div class="sub">事件を解決するたびに、原因筋と経穴(ツボ)の知識が登録される。<span id="dex-count"></span></div>
+    <div class="sub">事件を解決するたびに、原因筋と経穴(ツボ)が登録される。<span id="dex-count"></span></div>
     <div class="dex-grid" id="dex-grid"></div>
   </div>
 
-  <!-- ===== TRAINING ===== -->
+  <!-- TRAINING -->
   <div class="screen hidden" id="screen-train">
     <div class="h">💪 育成・トレーニング</div>
-    <div class="sub">レベルアップで手に入る「捜査ポイント」を割り振って、ツボ刑事を強化しよう。</div>
+    <div class="sub">レベルアップで手に入る捜査ポイントを割り振ってツボ刑事を強化しよう。</div>
     <div class="stat-card">
-      <div style="font-size:.8rem; color:var(--accent); font-weight:800; margin-bottom:6px;">未割り振りポイント</div>
-      <div style="font-size:2rem; font-weight:900; color:var(--gold);" id="t-points">0</div>
+      <div style="font-size:.78rem;color:#4a9eff;font-weight:800;margin-bottom:6px;">未割り振りポイント</div>
+      <div style="font-size:1.9rem;font-weight:900;color:#ffc832;" id="t-points">0</div>
     </div>
     <div class="stat-card" id="t-stats"></div>
-    <div class="hint-small">「診断眼」が高いほど1問の与ダメージが増え、事件を早く解決できる。</div>
+    <div class="sub" style="text-align:center">「診断眼」が高いほど技の威力が上がり、「集中力」が高いほど刑事の体力(耐久)が増える。</div>
   </div>
 
-  <div class="overlay" id="overlay">
-    <div class="big-emoji" id="ov-emoji">🎉</div>
-    <h2 id="ov-title"></h2>
-    <p id="ov-text"></p>
-    <div class="reward" id="ov-reward"></div>
-    <button class="btn gold" id="ov-btn"></button>
+  <!-- ============ BATTLE OVERLAY ============ -->
+  <div id="battle">
+    <div class="field" id="field">
+      <div class="flash" id="flash"></div>
+
+      <div class="plate enemy" id="enemy-plate">
+        <div class="row1">
+          <span class="pname" id="e-name">???</span>
+          <span class="plv pixel">Lv<span id="e-lv">5</span></span>
+        </div>
+        <div class="hprow"><span class="hptag">HP</span>
+          <div class="hpbar"><i id="e-hp"></i></div>
+        </div>
+      </div>
+
+      <div class="battler enemy">
+        <div class="mon enter-e" id="e-mon">😵</div>
+        <div class="disc"></div>
+      </div>
+
+      <div class="battler mine">
+        <div class="mon mine enter-m" id="m-mon">🕵️</div>
+        <div class="disc"></div>
+      </div>
+
+      <div class="plate mine" id="mine-plate">
+        <div class="row1">
+          <span class="pname">ツボ刑事</span>
+          <span class="plv pixel">Lv<span id="m-lv">1</span></span>
+        </div>
+        <div class="hprow"><span class="hptag">HP</span>
+          <div class="hpbar"><i id="m-hp"></i></div>
+        </div>
+        <div class="hpnum pixel" id="m-hpnum">30/ 30</div>
+        <div class="expwrap"><span class="exptag">EXP</span>
+          <div class="expbar"><i id="m-exp"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="control">
+      <!-- message -->
+      <div class="textbox" id="b-textbox">
+        <span id="b-text"></span>
+        <span class="cursor hidden" id="b-cursor">▼</span>
+      </div>
+      <!-- command menu -->
+      <div class="panel-row hidden" id="b-commands">
+        <div class="cmd-grid">
+          <button class="cmd" data-cmd="fight">たたかう</button>
+          <button class="cmd" data-cmd="hint">ヒント</button>
+          <button class="cmd" data-cmd="chart">カルテ</button>
+          <button class="cmd" data-cmd="run">にげる</button>
+        </div>
+      </div>
+      <!-- move select -->
+      <div class="panel-row hidden" id="b-moves">
+        <div class="move-list" id="move-list"></div>
+        <div class="move-info">
+          <span class="mi-type" id="mi-type">けいけつ</span>
+          <div class="mi-pp pixel" id="mi-pp">PP 5/ 5</div>
+          <div class="mi-hint" id="mi-hint">弱点の経穴を選べ</div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- NAV -->
   <div class="nav" id="nav">
     <button data-scr="map" class="active"><span class="ic">🗺</span>マップ</button>
     <button data-scr="dex"><span class="ic">📖</span>図鑑</button>
@@ -332,317 +348,346 @@
 <script src="js/data.js"></script>
 <script>
 /* ============================================================
- *  ツボ刑事 — ゲームロジック(window.EPISODES を消費)
+ * ツボ刑事 — Pokémon風バトル
  * ============================================================ */
-const EPISODES = (window.EPISODES || []).slice().sort((a, b) => a.ep - b.ep);
-const SAVE_KEY = "tuboKeijiSave_v2";
+const EPISODES = (window.EPISODES || []).slice().sort((a,b)=>a.ep-b.ep);
+const SAVE_KEY = "tuboKeijiSave_v3";
 const XP_PER_LEVEL = 100;
-const AVATAR = { narrator: "🎬", patient: "🧍", detective: "🕵️", monster: "👾" };
-const WHO = { narrator: "", patient: "患者", detective: "ツボ刑事", monster: "症状モンスター" };
+const AVATAR = { narrator:"🎬", patient:"🧍", detective:"🕵️", monster:"👾" };
+const WHO = { narrator:"", patient:"患者", detective:"ツボ刑事", monster:"症状モンスター" };
 
-const defaultState = () => ({
-  level: 1, xp: 0, coins: 0, points: 0,
-  stats: { diagnosis: 1, focus: 1 },
-  cleared: {}, dex: {},
+const defaultState = () => ({ level:1, xp:0, coins:0, points:0, stats:{diagnosis:1, focus:1}, cleared:{}, dex:{} });
+let S = load();
+let current = null, dialogIdx = 0;
+let B = null; // battle state
+
+function epId(ep){ return "ep"+ep.ep; }
+function load(){ try{ const r=localStorage.getItem(SAVE_KEY); if(r) return Object.assign(defaultState(),JSON.parse(r)); }catch(e){} return defaultState(); }
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
+const $ = id => document.getElementById(id);
+
+/* ---------- screens ---------- */
+function go(scr){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
+  $("screen-"+scr).classList.remove("hidden");
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active", b.dataset.scr===scr));
+  if(scr==="map") renderMap();
+  if(scr==="dex") renderDex();
+  if(scr==="train") renderTrain();
+  $("screen-"+scr).scrollTop = 0;
+}
+document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click", ()=>go(b.dataset.scr)));
+
+function renderHeader(){
+  $("lvl-text").textContent = "Lv."+S.level+"　"+S.xp+" / "+XP_PER_LEVEL+" XP";
+  $("coin").textContent = "🪙 "+S.coins;
+}
+
+/* ---------- map ---------- */
+function isUnlocked(i){ return i===0 ? true : !!S.cleared[epId(EPISODES[i-1])]; }
+function renderMap(){
+  const w = $("map-wrap");
+  w.querySelectorAll(".pin").forEach(p=>p.remove());
+  EPISODES.forEach((ep,i)=>{
+    const cleared=!!S.cleared[epId(ep)], unlocked=isUnlocked(i);
+    const pos=ep.mapPos||{x:50,y:20+i*15};
+    const pin=document.createElement("div");
+    pin.className="pin "+(cleared?"cleared":unlocked?"new":"locked");
+    pin.style.left=pos.x+"%"; pin.style.top=pos.y+"%";
+    pin.innerHTML='<div class="dot">'+(unlocked?(cleared?"✅":ep.monster.emoji):"🔒")+'</div>'+
+      '<div class="lbl">'+(unlocked?ep.location:"？？？")+'</div>';
+    if(unlocked) pin.addEventListener("click", ()=>openStory(ep));
+    w.appendChild(pin);
+  });
+}
+
+/* ---------- story ---------- */
+function openStory(ep){
+  current=ep; dialogIdx=0;
+  const p=ep.patient;
+  $("story-title").textContent="EP"+ep.ep+" "+ep.title;
+  $("story-patient").textContent=p.emoji+" "+p.name+"・"+p.age+"歳・"+p.gender+"・"+p.job;
+  $("story-caseinfo").innerHTML="<b>主訴:</b> "+ep.symptom+"<br><b>きっかけ:</b> "+ep.trigger+"<br><b>諦めたこと:</b> "+ep.gaveup;
+  $("story-dialog").innerHTML="";
+  $("btn-advance").classList.remove("hidden");
+  $("btn-start-battle").classList.add("hidden");
+  $("btn-start-battle").textContent = S.cleared[epId(ep)] ? "🔁 もう一度バトル(復習)" : "⚔️ バトル開始";
+  go("story"); advanceDialog();
+}
+function advanceDialog(){
+  const ep=current;
+  if(dialogIdx>=ep.script.length){ $("btn-advance").classList.add("hidden"); $("btn-start-battle").classList.remove("hidden"); return; }
+  const l=ep.script[dialogIdx++];
+  const div=document.createElement("div"); div.className="line "+l.speaker;
+  const who=WHO[l.speaker]?'<span class="who">'+WHO[l.speaker]+'</span>':"";
+  div.innerHTML=(l.speaker==="narrator"?"":'<div class="av">'+(AVATAR[l.speaker]||"💬")+'</div>')+'<div class="bubble">'+who+l.text+'</div>';
+  $("story-dialog").appendChild(div);
+  const s=$("screen-story"); s.scrollTop=s.scrollHeight;
+  if(dialogIdx>=ep.script.length){ $("btn-advance").classList.add("hidden"); $("btn-start-battle").classList.remove("hidden"); }
+}
+$("btn-advance").addEventListener("click", advanceDialog);
+$("btn-start-battle").addEventListener("click", ()=>startBattle(current));
+
+/* ============================================================
+ * BATTLE ENGINE
+ * ============================================================ */
+function hpColor(r){ return r>0.5 ? "var(--hp-green)" : r>0.2 ? "var(--hp-yellow)" : "var(--hp-red)"; }
+
+function startBattle(ep){
+  const eMax = ep.quiz.length * 12;
+  const mMax = 30 + (S.stats.focus-1)*8;
+  B = {
+    ep, qIndex:0,
+    eMax, eHp:eMax, eLv: ep.ep+4,
+    mMax, mHp:mMax, mLv:S.level,
+    perfect:true, wrongs:0, done:false,
+    hintUsed:false,
+  };
+  // reset visuals
+  $("e-name").textContent = ep.monster.name;
+  $("e-lv").textContent = B.eLv;
+  $("m-lv").textContent = B.mLv;
+  setHp("e", 1); setHp("m", 1);
+  $("m-hpnum").textContent = B.mMax+"/ "+B.mMax;
+  $("m-exp").style.width = (S.xp/XP_PER_LEVEL*100)+"%";
+  const em=$("e-mon"), mm=$("m-mon");
+  em.textContent = ep.monster.emoji; em.className="mon enter-e";
+  mm.textContent = "🕵️"; mm.className="mon mine enter-m";
+  $("topbar").classList.add("hidden");
+  $("nav").classList.add("hidden");
+  document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
+  $("battle").classList.add("show");
+  hidePanels();
+  // intro sequence
+  msg("やせいの "+ep.monster.name+"が とびだしてきた！", ()=>{
+    msg("ツボ刑事は しんだんを はじめた！", showCommands);
+  });
+}
+
+function setHp(who, ratio){
+  const bar=$(who+"-hp"); bar.style.width=(ratio*100)+"%"; bar.style.background=hpColor(ratio);
+  if(who==="m") $("m-hpnum").textContent = Math.max(0,Math.round(B.mHp))+"/ "+B.mMax;
+}
+
+/* message box helper: shows text, waits for tap, then cb */
+let tapHandler=null;
+function msg(text, cb){
+  hidePanels();
+  $("b-textbox").classList.remove("hidden");
+  $("b-text").innerHTML = text;
+  const cur=$("b-cursor");
+  if(cb){ cur.classList.remove("hidden"); } else { cur.classList.add("hidden"); }
+  if(tapHandler) $("b-textbox").removeEventListener("click", tapHandler);
+  tapHandler = ()=>{ if(cb){ $("b-textbox").removeEventListener("click", tapHandler); tapHandler=null; cb(); } };
+  if(cb) $("b-textbox").addEventListener("click", tapHandler);
+}
+function hidePanels(){ $("b-commands").classList.add("hidden"); $("b-moves").classList.add("hidden"); $("b-cursor").classList.add("hidden"); }
+
+/* ---------- command menu ---------- */
+function showCommands(){
+  hidePanels();
+  $("b-textbox").classList.remove("hidden");
+  $("b-text").innerHTML = "ツボ刑事は どうする？";
+  $("b-commands").classList.remove("hidden");
+}
+$("b-commands").addEventListener("click", (e)=>{
+  const btn=e.target.closest(".cmd"); if(!btn) return;
+  const c=btn.dataset.cmd;
+  if(c==="fight") showMoves();
+  else if(c==="hint") doHint();
+  else if(c==="chart") doChart();
+  else if(c==="run") doRun();
 });
 
-let S = load();
-let current = null;   // 現在のエピソード
-let battle = null;    // バトル状態
-let dialogIdx = 0;    // ストーリー進行位置
-
-function epId(ep) { return "ep" + ep.ep; }
-function monHp(ep) { return ep.quiz.length; }  // HP = クイズ数(全問で確実に撃破)
-
-function load() {
-  try { const raw = localStorage.getItem(SAVE_KEY); if (raw) return Object.assign(defaultState(), JSON.parse(raw)); } catch (e) {}
-  return defaultState();
+function doHint(){
+  const q=B.ep.quiz[B.qIndex];
+  B.hintUsed=true; B.perfect=false;
+  msg("💡 "+ (q.hint || ("弱点は原因筋『"+B.ep.muscle.name+"』のライン。関連する経穴を狙え！")), showMoves);
 }
-function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
-
-/* ---------- 画面遷移 ---------- */
-function go(scr) {
-  document.querySelectorAll(".screen").forEach((s) => s.classList.add("hidden"));
-  document.getElementById("screen-" + scr).classList.remove("hidden");
-  document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("active", b.dataset.scr === scr));
-  if (scr === "map") renderMap();
-  if (scr === "dex") renderDex();
-  if (scr === "train") renderTrain();
-  document.getElementById("screen-" + scr).scrollTop = 0;
+function doChart(){
+  const ep=B.ep;
+  msg("📋 "+ep.patient.name+"("+ep.patient.age+")／主訴:"+ep.symptom+"。"+ep.trigger, showCommands);
 }
-document.querySelectorAll("#nav button").forEach((b) => b.addEventListener("click", () => go(b.dataset.scr)));
-
-/* ---------- ヘッダー ---------- */
-function renderHeader() {
-  document.getElementById("lvl-text").textContent = "Lv." + S.level + "　" + S.xp + " / " + XP_PER_LEVEL + " XP";
-  document.getElementById("xp-fill").style.width = (S.xp / XP_PER_LEVEL * 100) + "%";
-  document.getElementById("coin").textContent = "🪙 " + S.coins;
+function doRun(){
+  msg("うまく にげきれた！", ()=>{ endBattle(); go("map"); });
 }
 
-/* ---------- マップ ---------- */
-function isUnlocked(idx) { return idx === 0 ? true : !!S.cleared[epId(EPISODES[idx - 1])]; }
-function renderMap() {
-  const wrap = document.getElementById("map-wrap");
-  wrap.querySelectorAll(".pin").forEach((p) => p.remove());
-  EPISODES.forEach((ep, i) => {
-    const cleared = !!S.cleared[epId(ep)];
-    const unlocked = isUnlocked(i);
-    const pos = ep.mapPos || { x: 50, y: 20 + i * 15 };
-    const pin = document.createElement("div");
-    pin.className = "pin " + (cleared ? "cleared" : unlocked ? "new" : "locked");
-    pin.style.left = pos.x + "%";
-    pin.style.top = pos.y + "%";
-    pin.innerHTML =
-      '<div class="dot">' + (unlocked ? (cleared ? "✅" : ep.monster.emoji) : "🔒") + '</div>' +
-      '<div class="lbl">' + (unlocked ? ep.location : "？？？") + '</div>';
-    if (unlocked) pin.addEventListener("click", () => openStory(ep));
-    wrap.appendChild(pin);
+/* ---------- move (=quiz choice) select ---------- */
+function showMoves(){
+  hidePanels();
+  const q=B.ep.quiz[B.qIndex];
+  $("b-textbox").classList.remove("hidden");
+  $("b-text").innerHTML = "▼ "+q.q;
+  const list=$("move-list"); list.innerHTML="";
+  q.choices.forEach((c,i)=>{
+    const b=document.createElement("button");
+    b.className="move";
+    b.innerHTML = c + '<small>けいけつ・PP 5/5</small>';
+    b.addEventListener("click", ()=>useMove(i));
+    list.appendChild(b);
   });
+  $("mi-type").textContent="けいけつ";
+  $("mi-pp").textContent="PP 5/ 5";
+  $("mi-hint").textContent = "弱点の経穴を選べ";
+  $("b-moves").classList.remove("hidden");
 }
 
-/* ---------- ストーリー(会話送り) ---------- */
-function openStory(ep) {
-  current = ep;
-  dialogIdx = 0;
-  const p = ep.patient;
-  document.getElementById("story-title").textContent = "EP" + ep.ep + " " + ep.title;
-  document.getElementById("story-patient").textContent = p.emoji + " " + p.name + "・" + p.age + "歳・" + p.gender + "・" + p.job;
-  document.getElementById("story-caseinfo").innerHTML =
-    "<b>主訴:</b> " + ep.symptom + "<br>" +
-    "<b>きっかけ:</b> " + ep.trigger + "<br>" +
-    "<b>諦めたこと:</b> " + ep.gaveup;
-  document.getElementById("story-dialog").innerHTML = "";
-  document.getElementById("btn-advance").classList.remove("hidden");
-  document.getElementById("btn-start-battle").classList.add("hidden");
-  document.getElementById("btn-start-battle").textContent =
-    S.cleared[epId(ep)] ? "🔁 もう一度挑戦(復習)" : "🔍 捜査開始(バトル)";
-  go("story");
-  advanceDialog();
-}
-function advanceDialog() {
-  const ep = current;
-  if (dialogIdx >= ep.script.length) {
-    document.getElementById("btn-advance").classList.add("hidden");
-    document.getElementById("btn-start-battle").classList.remove("hidden");
-    return;
-  }
-  const l = ep.script[dialogIdx++];
-  const div = document.createElement("div");
-  div.className = "line " + l.speaker;
-  const who = WHO[l.speaker] ? '<span class="who">' + WHO[l.speaker] + '</span>' : "";
-  div.innerHTML =
-    (l.speaker === "narrator" ? "" : '<div class="av">' + (AVATAR[l.speaker] || "💬") + '</div>') +
-    '<div class="bubble">' + who + l.text + '</div>';
-  document.getElementById("story-dialog").appendChild(div);
-  const scr = document.getElementById("screen-story");
-  scr.scrollTop = scr.scrollHeight;
-  if (dialogIdx >= ep.script.length) {
-    document.getElementById("btn-advance").classList.add("hidden");
-    document.getElementById("btn-start-battle").classList.remove("hidden");
-  }
-}
-document.getElementById("btn-advance").addEventListener("click", advanceDialog);
-document.getElementById("btn-start-battle").addEventListener("click", () => startBattle(current));
-
-/* ---------- バトル ---------- */
-function startBattle(ep) {
-  const hp = monHp(ep);
-  battle = { ep, queue: shuffle(ep.quiz.slice()), idx: 0, maxHp: hp, hp: hp, correctCount: 0, answered: false };
-  document.getElementById("b-monname").textContent = "▼ " + ep.monster.name + " が あらわれた!";
-  document.getElementById("b-monintro").textContent = ep.monster.intro || "";
-  const me = document.getElementById("b-monemoji");
-  me.textContent = ep.monster.emoji; me.className = "mon-big";
-  updateHp();
-  go("battle");
-  showQuestion();
-}
-function updateHp() {
-  document.getElementById("b-hpnum").textContent = battle.hp + " / " + battle.maxHp;
-  document.getElementById("b-hpfill").style.width = (battle.hp / battle.maxHp * 100) + "%";
-}
-function showQuestion() {
-  const q = battle.queue[battle.idx];
-  battle.answered = false;
-  document.getElementById("b-qcount").textContent = "第 " + (battle.idx + 1) + " / " + battle.queue.length + " 問";
-  document.getElementById("b-qtext").textContent = q.q;
-  const cc = document.getElementById("b-choices");
-  cc.innerHTML = "";
-  q.choices.forEach((c, i) => {
-    const btn = document.createElement("button");
-    btn.className = "choice"; btn.textContent = c;
-    btn.addEventListener("click", () => answer(i, btn));
-    cc.appendChild(btn);
-  });
-  document.getElementById("b-explain").className = "explain";
-  document.getElementById("b-explain").innerHTML = "";
-  document.getElementById("b-next").classList.add("hidden");
-}
-function answer(i, btn) {
-  if (battle.answered) return;
-  battle.answered = true;
-  const q = battle.queue[battle.idx];
-  const buttons = document.querySelectorAll("#b-choices .choice");
-  buttons.forEach((b) => (b.disabled = true));
-  const correct = i === q.answer;
-  buttons[q.answer].classList.add("correct");
-  if (!correct) btn.classList.add("wrong");
-
-  const ep = battle.ep;
-  const exp = document.getElementById("b-explain");
-  if (correct) {
-    battle.correctCount++;
-    const dmg = 1 + Math.floor((S.stats.diagnosis - 1) / 2);
-    dealDamage(dmg);
-    exp.innerHTML = "⭕ <b>正解!</b> " + q.explain +
-      '<br><span style="color:var(--gold)">『' + ep.acupoint.name + '』の一撃! ' + dmg + ' ダメージ</span>';
+function useMove(i){
+  const ep=B.ep, q=ep.quiz[B.qIndex];
+  const correct = i===q.answer;
+  const chosen = q.choices[i];
+  hidePanels();
+  if(correct){
+    const dmg = Math.round(B.eMax / ep.quiz.length) + (S.stats.diagnosis-1)*3;
+    msg("ツボ刑事の 『"+chosen+"』！", ()=>{
+      flash(); shakeEnemy();
+      B.eHp = Math.max(0, B.eHp - dmg);
+      setHp("e", B.eHp/B.eMax);
+      msg("きゅうしょに あたった！ こうかは ばつぐんだ！", ()=>{
+        msg("💡 "+q.explain, afterTurn);
+      });
+    });
   } else {
-    exp.innerHTML = "❌ <b>不正解…</b> " + q.explain;
+    B.perfect=false; B.wrongs++;
+    const back = 8 + Math.floor(ep.ep*1.5);
+    msg("ツボ刑事は 『"+chosen+"』を つかった…", ()=>{
+      msg("こうかは いまひとつの ようだ…", ()=>{
+        // enemy counter-attack
+        msg(ep.monster.name+"の はんげき！", ()=>{
+          flash(); shakeMine();
+          B.mHp = Math.max(0, B.mHp - back);
+          setHp("m", B.mHp/B.mMax);
+          msg("ツボ刑事は "+back+" ダメージを うけた！", ()=>{
+            msg("💡 "+q.explain, ()=>{
+              if(B.mHp<=0){ loseBattle(); return; }
+              afterTurn();
+            });
+          });
+        });
+      });
+    });
   }
-  exp.className = "explain show";
-  const nextBtn = document.getElementById("b-next");
-  nextBtn.classList.remove("hidden");
-  nextBtn.textContent = (battle.hp <= 0 || battle.idx + 1 >= battle.queue.length) ? "結果へ ▶" : "次へ ▶";
-  nextBtn.onclick = () => {
-    if (battle.hp <= 0) { winBattle(); return; }
-    battle.idx++;
-    if (battle.idx >= battle.queue.length) finishByScore();
-    else showQuestion();
-  };
-  renderHeader();
-}
-function dealDamage(dmg) {
-  battle.hp = Math.max(0, battle.hp - dmg);
-  updateHp();
-  const me = document.getElementById("b-monemoji");
-  me.classList.remove("hit"); void me.offsetWidth; me.classList.add("hit");
-  const f = document.getElementById("b-dmg");
-  f.textContent = "-" + dmg;
-  f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
-  if (battle.hp <= 0) me.className = "mon-big faint";
-}
-function finishByScore() {
-  // 全問終了時: 過半数正解で勝ち(HPが残っていても知識合格とみなす)
-  if (battle.correctCount >= Math.ceil(battle.queue.length / 2)) winBattle();
-  else loseBattle();
-}
-function winBattle() {
-  const ep = battle.ep;
-  const firstClear = !S.cleared[epId(ep)];
-  S.cleared[epId(ep)] = true;
-  S.dex[epId(ep)] = { muscle: ep.muscle, acupoint: ep.acupoint };
-  let xpGain = firstClear ? 60 : 20, coinGain = firstClear ? 30 : 8;
-  const perfect = battle.correctCount === battle.queue.length;
-  if (perfect) { xpGain += 20; coinGain += 10; }
-  S.coins += coinGain;
-  const leveled = addXp(xpGain);
-  save(); renderHeader();
-  showOverlay({
-    emoji: "🎊", title: "事件解決!",
-    text: ep.monster.name + " を鎮めた!\n弱点は原因筋『" + ep.muscle.name + "』と経穴『" + ep.acupoint.name + "』。" +
-          (perfect ? "\n✨ 全問正解パーフェクト!" : ""),
-    reward: "+" + xpGain + " XP　🪙+" + coinGain +
-            (leveled ? "\n🎉 レベルアップ! Lv." + S.level + "(捜査ポイント+" + leveled + ")" : ""),
-    btnText: "図鑑に登録して戻る",
-    onClose: () => { hideOverlay(); go("map"); },
-  });
-}
-function loseBattle() {
-  showOverlay({
-    emoji: "😓", title: "捜査失敗…",
-    text: "症状モンスターを鎮めきれなかった。\n解説をよく読んで、もう一度挑戦しよう。",
-    reward: "", btnText: "もう一度挑戦",
-    onClose: () => { hideOverlay(); startBattle(battle.ep); },
-  });
-}
-function addXp(amount) {
-  S.xp += amount; let g = 0;
-  while (S.xp >= XP_PER_LEVEL) { S.xp -= XP_PER_LEVEL; S.level++; S.points++; g++; }
-  return g;
 }
 
-/* ---------- オーバーレイ ---------- */
-function showOverlay({ emoji, title, text, reward, btnText, onClose }) {
-  document.getElementById("ov-emoji").textContent = emoji;
-  document.getElementById("ov-title").textContent = title;
-  document.getElementById("ov-text").textContent = text;
-  document.getElementById("ov-reward").textContent = reward;
-  const b = document.getElementById("ov-btn");
-  b.textContent = btnText; b.onclick = onClose;
-  document.getElementById("overlay").classList.add("show");
-}
-function hideOverlay() { document.getElementById("overlay").classList.remove("show"); }
-
-/* ---------- 図鑑 ---------- */
-function renderDex() {
-  const grid = document.getElementById("dex-grid");
-  const total = EPISODES.length, got = Object.keys(S.dex).length;
-  document.getElementById("dex-count").textContent = " (" + got + " / " + total + " 登録済み)";
-  grid.innerHTML = "";
-  if (got === 0) {
-    grid.innerHTML = '<div class="dex-card empty">まだ登録がありません。<br>マップで事件を解決すると、ここにツボと筋肉が集まります。</div>';
+function afterTurn(){
+  if(B.eHp<=0){ winBattle(); return; }
+  B.qIndex++;
+  if(B.qIndex >= B.ep.quiz.length){
+    // ran out of questions but enemy alive: judge by damage done
+    if(B.eHp <= B.eMax*0.4) winBattle();
+    else { msg(B.ep.monster.name+"は まだ あばれている…", ()=>{ B.qIndex=0; showCommands(); }); }
     return;
   }
-  EPISODES.forEach((ep) => {
-    const d = S.dex[epId(ep)];
-    if (!d) return;
-    const m = d.muscle, p = d.acupoint;
-    const card = document.createElement("div");
-    card.className = "dex-card";
-    card.innerHTML =
-      '<span class="tag m">💀 原因筋</span>' +
-      '<h3>' + m.name + (m.reading ? '<small>' + m.reading + '</small>' : '') + '</h3>' +
-      '<div class="dex-row">' + m.info + '</div>' +
-      '<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:14px 0;">' +
-      '<span class="tag p">🎯 経穴(ツボ)</span>' +
-      '<h3>' + p.name + (p.reading ? '<small>' + p.reading + '</small>' : '') +
-        (p.meridian ? '<span class="meridian-pill">' + p.meridian + '</span>' : '') + '</h3>' +
-      '<div class="dex-row"><b>位置:</b> ' + p.location + '</div>' +
-      (p.how ? '<div class="dex-row"><b>圧し方:</b> ' + p.how + '</div>' : '') +
-      '<div class="dex-row"><b>効果:</b> ' + p.effect + '</div>' +
-      (p.caution ? '<div class="dex-row" style="color:var(--wrong)"><b style="color:var(--wrong)">注意:</b> ' + p.caution + '</div>' : '');
+  showCommands();
+}
+
+function flash(){ const f=$("flash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); }
+function shakeEnemy(){ const m=$("e-mon"); m.classList.remove("shake"); void m.offsetWidth; m.classList.add("shake"); }
+function shakeMine(){ const m=$("m-mon"); m.classList.remove("shake"); void m.offsetWidth; m.classList.add("shake"); }
+
+/* ---------- win / lose ---------- */
+function winBattle(){
+  const ep=B.ep;
+  $("e-mon").className="mon faint";
+  msg(ep.monster.name+"を しずめた！", ()=>{
+    const firstClear = !S.cleared[epId(ep)];
+    S.cleared[epId(ep)]=true;
+    S.dex[epId(ep)]={ muscle:ep.muscle, acupoint:ep.acupoint };
+    let xpGain = firstClear?60:20, coinGain=firstClear?30:8;
+    if(B.perfect){ xpGain+=20; coinGain+=10; }
+    S.coins+=coinGain;
+    msg("ツボ刑事は "+xpGain+" けいけんちを もらった！"+(B.perfect?"(パーフェクト+20)":""), ()=>{
+      animateExp(xpGain, ()=>{
+        save(); renderHeader();
+        const done = ()=>{ endBattle(); go("map"); };
+        msg("弱点は 原因筋『"+ep.muscle.name+"』と 経穴『"+ep.acupoint.name+"』だった。", ()=>{
+          msg("📖 図鑑に とうろくした！　🪙+"+coinGain, done);
+        });
+      });
+    });
+  });
+}
+function animateExp(gain, cb){
+  // fill exp bar, handle level-ups visually
+  let remaining=gain;
+  const step=()=>{
+    const need = XP_PER_LEVEL - S.xp;
+    if(remaining < need){
+      S.xp += remaining; remaining=0;
+      $("m-exp").style.width=(S.xp/XP_PER_LEVEL*100)+"%";
+      setTimeout(cb, 520);
+    } else {
+      remaining -= need; S.xp=0;
+      $("m-exp").style.width="100%";
+      setTimeout(()=>{
+        S.level++; S.points++;
+        $("m-exp").style.width="0%";
+        $("m-lv").textContent=S.level; B.mLv=S.level;
+        msg("ツボ刑事は レベル "+S.level+" に あがった！(捜査ポイント+1)", ()=>setTimeout(step,10));
+      }, 520);
+    }
+  };
+  step();
+}
+function loseBattle(){
+  $("m-mon").className="mon mine faint";
+  msg("ツボ刑事は めのまえが まっくらに なった！", ()=>{
+    msg("しかし 経験を つんだ。もう一度 挑戦しよう。", ()=>{ endBattle(); startBattle(B.ep); });
+  });
+}
+function endBattle(){
+  $("battle").classList.remove("show");
+  $("topbar").classList.remove("hidden");
+  $("nav").classList.remove("hidden");
+  if(tapHandler){ $("b-textbox").removeEventListener("click", tapHandler); tapHandler=null; }
+}
+
+/* ---------- dex ---------- */
+function renderDex(){
+  const grid=$("dex-grid");
+  const total=EPISODES.length, got=Object.keys(S.dex).length;
+  $("dex-count").textContent=" ("+got+" / "+total+" 登録済み)";
+  grid.innerHTML="";
+  if(got===0){ grid.innerHTML='<div class="dex-card empty">まだ登録がありません。<br>マップで事件を解決すると、ここにツボと筋肉が集まります。</div>'; return; }
+  EPISODES.forEach(ep=>{
+    const d=S.dex[epId(ep)]; if(!d) return;
+    const m=d.muscle, p=d.acupoint;
+    const card=document.createElement("div"); card.className="dex-card";
+    card.innerHTML='<span class="tag m">💀 原因筋</span><h3>'+m.name+(m.reading?'<small>'+m.reading+'</small>':'')+'</h3>'+
+      '<div class="dex-row">'+m.info+'</div>'+
+      '<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:13px 0;">'+
+      '<span class="tag p">🎯 経穴(ツボ)</span><h3>'+p.name+(p.reading?'<small>'+p.reading+'</small>':'')+(p.meridian?'<span class="meridian-pill">'+p.meridian+'</span>':'')+'</h3>'+
+      '<div class="dex-row"><b>位置:</b> '+p.location+'</div>'+
+      (p.how?'<div class="dex-row"><b>圧し方:</b> '+p.how+'</div>':'')+
+      '<div class="dex-row"><b>効果:</b> '+p.effect+'</div>'+
+      (p.caution?'<div class="dex-row" style="color:#f85038"><b style="color:#f85038">注意:</b> '+p.caution+'</div>':'');
     grid.appendChild(card);
   });
 }
 
-/* ---------- 育成 ---------- */
-const STAT_DEFS = [
-  { key: "diagnosis", name: "診断眼", desc: "2上げるごとに与ダメージ+1(事件を早く解決)" },
-  { key: "focus", name: "集中力", desc: "精神力を高め、粘り強く捜査できる" },
+/* ---------- train ---------- */
+const STAT_DEFS=[
+  {key:"diagnosis", name:"診断眼", desc:"高いほど技の威力(与ダメージ)が上がる"},
+  {key:"focus", name:"集中力", desc:"高いほど刑事の体力(耐久)が増える"},
 ];
-function renderTrain() {
-  document.getElementById("t-points").textContent = S.points;
-  const box = document.getElementById("t-stats");
-  box.innerHTML = "";
-  STAT_DEFS.forEach((def) => {
-    const row = document.createElement("div");
-    row.className = "stat-row";
-    row.innerHTML =
-      '<div class="stat-name">' + def.name + '<small>' + def.desc + '</small></div>' +
-      '<div style="display:flex;align-items:center;gap:12px;">' +
-        '<span class="stat-val">' + S.stats[def.key] + '</span>' +
-        '<button class="stat-up" ' + (S.points <= 0 ? "disabled" : "") + '>+</button></div>';
-    row.querySelector(".stat-up").addEventListener("click", () => {
-      if (S.points <= 0) return;
-      S.points--; S.stats[def.key]++; save(); renderTrain(); renderHeader();
-    });
+function renderTrain(){
+  $("t-points").textContent=S.points;
+  const box=$("t-stats"); box.innerHTML="";
+  STAT_DEFS.forEach(def=>{
+    const row=document.createElement("div"); row.className="stat-row";
+    row.innerHTML='<div class="stat-name">'+def.name+'<small>'+def.desc+'</small></div>'+
+      '<div style="display:flex;align-items:center;gap:12px;"><span class="stat-val">'+S.stats[def.key]+'</span>'+
+      '<button class="stat-up" '+(S.points<=0?"disabled":"")+'>+</button></div>';
+    row.querySelector(".stat-up").addEventListener("click", ()=>{ if(S.points<=0)return; S.points--; S.stats[def.key]++; save(); renderTrain(); renderHeader(); });
     box.appendChild(row);
   });
 }
 
-/* ---------- util ---------- */
-function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-
 /* ---------- init ---------- */
-if (EPISODES.length === 0) {
-  document.getElementById("screen-map").innerHTML =
-    '<div class="h">データがありません</div><div class="sub">js/data.js の EPISODES にエピソードを追加してください。</div>';
-} else {
-  renderHeader();
-  go("map");
-}
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
-}
+if(EPISODES.length===0){
+  $("screen-map").innerHTML='<div class="h">データがありません</div><div class="sub">js/data.js の EPISODES にエピソードを追加してください。</div>';
+} else { renderHeader(); go("map"); }
+if("serviceWorker" in navigator){ window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
 </script>
 </body>
 </html>

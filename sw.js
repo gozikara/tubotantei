@@ -1,5 +1,5 @@
 /* ツボ刑事 Service Worker — オフライン対応 */
-const CACHE = "tubo-keiji-v1";
+const CACHE = "tubo-keiji-v2";
 const ASSETS = [
   "./",
   "./index.html",
