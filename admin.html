@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ツボ刑事 エピソード制作ツール</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a1628;
+    --card: #111e33;
+    --border: rgba(74,158,255,0.25);
+    --accent: #4a9eff;
+    --gold: #ffc832;
+    --text: #e8eaf0;
+    --muted: #8899aa;
+    --correct: #4aff7f;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+  .field label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .field input,
+  .field textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--accent);
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 72px;
+    line-height: 1.6;
+  }
+  .field .hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .btn-generate {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 900;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-bottom: 20px;
+  }
+  .btn-generate:hover { opacity: 0.85; }
+
+  .output-section { display: none; }
+  .output-section.show { display: block; }
+
+  .output-box {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #c8d8e8;
+    margin-bottom: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .btn-copy {
+    width: 100%;
+    padding: 14px;
+    background: var(--gold);
+    color: #000;
+    font-size: 1rem;
+    font-weight: 900;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-copy:hover { opacity: 0.85; }
+  .btn-copy.copied {
+    background: var(--correct);
+    color: #000;
+  }
+
+  .steps {
+    background: rgba(74,158,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 20px;
+  }
+  .steps-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .step {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 2;
+    display: flex;
+    gap: 10px;
+  }
+  .step-num {
+    color: var(--gold);
+    font-weight: 700;
+    min-width: 20px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>⚔️ ツボ刑事 エピソード制作ツール</h1>
+  <div class="subtitle">フォームを入力して「プロンプト生成」を押すだけ</div>
+
+  <div class="card">
+    <div class="card-title">📋 エピソード基本情報</div>
+
+    <div class="field">
+      <label>EP番号</label>
+      <input type="text" id="ep" placeholder="例：2">
+    </div>
+
+    <div class="field">
+      <label>患者名・年齢・性別・職業</label>
+      <input type="text" id="patient" placeholder="例：田中さん・34歳・男性・営業職">
+    </div>
+
+    <div class="field">
+      <label>主訴</label>
+      <input type="text" id="symptom" placeholder="例：腰のだるさ・重さ">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🩺 症状の背景</div>
+
+    <div class="field">
+      <label>症状のきっかけ</label>
+      <textarea id="trigger" placeholder="例：新プロジェクトで残業が3ヶ月続いた。車での外回りが多く、長時間同じ姿勢が続く。"></textarea>
+    </div>
+
+    <div class="field">
+      <label>症状のせいで諦めたこと・辛かったこと</label>
+      <textarea id="gaveup" placeholder="例：週末の草野球を休んでいる。チームメイトに申し訳ない。子どもとキャッチボールができない。"></textarea>
+      <div class="hint">※ここを具体的に書くほど感情的な台本になります</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💀 解剖・経穴</div>
+
+    <div class="field">
+      <label>原因筋</label>
+      <input type="text" id="muscle" placeholder="例：脊柱起立筋">
+    </div>
+
+    <div class="field">
+      <label>経穴</label>
+      <input type="text" id="acupoint" placeholder="例：腎兪">
+    </div>
+  </div>
+
+  <button class="btn-generate" onclick="generate()">⚡ プロンプト生成</button>
+
+  <div class="output-section" id="output-section">
+    <div class="card">
+      <div class="card-title">✅ 生成されたプロンプト</div>
+      <div class="output-box" id="output-box"></div>
+      <button class="btn-copy" id="btn-copy" onclick="copyPrompt()">📋 コピーする</button>
+    </div>
+
+    <div class="steps">
+      <div class="steps-title">📌 次のステップ</div>
+      <div class="step"><span class="step-num">1</span><span>上のプロンプトをコピー</span></div>
+      <div class="step"><span class="step-num">2</span><span>claude.ai の「ツボ刑事 コンテンツ制作」プロジェクトを開く</span></div>
+      <div class="step"><span class="step-num">3</span><span>貼り付けて送信 → JS形式で台本・クイズが出力される</span></div>
+      <div class="step"><span class="step-num">4</span><span>出力されたJSをClaude Codeに渡して実装</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function generate() {
+  const ep      = document.getElementById('ep').value.trim();
+  const patient = document.getElementById('patient').value.trim();
+  const symptom = document.getElementById('symptom').value.trim();
+  const trigger = document.getElementById('trigger').value.trim();
+  const gaveup  = document.getElementById('gaveup').value.trim();
+  const muscle  = document.getElementById('muscle').value.trim();
+  const acupoint= document.getElementById('acupoint').value.trim();
+
+  if (!ep || !patient || !symptom || !muscle || !acupoint) {
+    alert('EP番号・患者名・主訴・原因筋・経穴は必須です');
+    return;
+  }
+
+  const prompt = `以下の情報をもとに、ツボ刑事のエピソード台本とクイズデータをJS形式で生成してください。
+
+━━━━━━━━━━━━━━━━━━━━━━
+■ 今回のエピソード情報
+━━━━━━━━━━━━━━━━━━━━━━
+EP番号：${ep}
+患者名・年齢・性別・職業：${patient}
+主訴：${symptom}
+症状のきっかけ：${trigger || '（未入力）'}
+症状のせいで諦めたこと・辛かったこと：${gaveup || '（未入力）'}
+原因筋：${muscle}
+経穴：${acupoint}`;
+
+  document.getElementById('output-box').textContent = prompt;
+  document.getElementById('output-section').classList.add('show');
+
+  const btn = document.getElementById('btn-copy');
+  btn.classList.remove('copied');
+  btn.textContent = '📋 コピーする';
+
+  document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyPrompt() {
+  const text = document.getElementById('output-box').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '✅ コピーしました！';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 コピーする';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
