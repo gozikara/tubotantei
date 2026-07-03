@@ -92,7 +92,21 @@
     border: 2px solid #6f4a22; border-radius: 3px; font-size: .62rem; font-weight: 900; padding: 2px 8px;
     white-space: nowrap; box-shadow: 0 2px 0 #6f4a22; }
   .patch.locked .sign { color: #5a4a34; }
-  .badge-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  /* ボスEPノード装飾 */
+  .patch.boss-node .field2 { border-color: #ff44aa; box-shadow: 0 0 12px rgba(255,80,180,.7), 0 0 24px rgba(255,80,180,.3); background: linear-gradient(135deg,#1a0a18,#2a0a22); }
+  .patch.boss-node.cleared .field2 { border-color: #ffd23a; box-shadow: 0 0 14px rgba(255,200,50,.7); }
+  .patch.boss-node .sign { background: linear-gradient(#cc3388,#881155); color: #ffe0f0; font-weight:900; }
+  .patch.boss-node .boss-badge-overlay { position:absolute; top:-10px; right:-10px; font-size:1.1rem; z-index:5; filter:drop-shadow(0 1px 3px rgba(0,0,0,.5)); }
+  /* お城ノード */
+  .castle-node { position:absolute; transform:translate(-50%,-50%); z-index:4; text-align:center; cursor:pointer; }
+  .castle-tower { font-size:3.2rem; filter:drop-shadow(0 3px 8px rgba(255,200,50,.6)); animation: castleGlow 2s ease-in-out infinite alternate; }
+  .castle-sign { display:inline-block; background:linear-gradient(#ffd23a,#c99a2a); color:#2a1800; font-size:.68rem; font-weight:900; border-radius:6px; padding:3px 8px; margin-top:2px; white-space:nowrap; }
+  .castle-node.locked-castle .castle-tower { filter:grayscale(.7) brightness(.5); }
+  .castle-node.locked-castle .castle-sign { background:linear-gradient(#555,#333); color:#888; }
+  @keyframes castleGlow { from{filter:drop-shadow(0 3px 8px rgba(255,200,50,.4))} to{filter:drop-shadow(0 3px 16px rgba(255,200,50,.9))} }
+  /* トップバー バッジカウント */
+  .badge-count-pill { background:rgba(255,130,200,.15); border:1px solid rgba(255,130,200,.4); border-radius:12px; padding:2px 8px; font-size:.68rem; color:#ff88cc; font-weight:700; margin-left:6px; }
+  .badge-row { display:none; }  /* グリッド廃止 → マップ上で表現 */
   .ep-badge { font-size:.7rem; font-weight:800; padding:4px 10px; border-radius:8px; background:#111e33;
     border:2px solid rgba(255,255,255,.1); color:#8899aa; }
   .ep-badge.earned { border-color:#ffc832; color:#ffc832; background:rgba(255,200,50,.1); }
@@ -437,6 +451,7 @@
       <div class="name">ツボ刑事<span class="rank-pill" id="rank-pill">見習い刑事</span></div>
       <div class="lvl" id="lvl-text">Lv.1　0 / 100 XP</div>
     </div>
+    <span class="badge-count-pill" id="badge-count" style="display:none">🎖️ 0/6</span>
     <div class="coin" id="coin">🪙 0</div>
   </div>
 
@@ -990,7 +1005,7 @@ function renderHeader(){
 function isUnlocked(i){ return i===0 ? true : !!S.cleared[epId(EPISODES[i-1])]; }
 
 const MAP_ROW_PX = 54;   // vertical distance between episodes (px)
-const MAP_PAD_TOP = 50;  // padding at top of map
+const MAP_PAD_TOP = 110; // padding at top of map (castle space)
 const MAP_PAD_BOT = 70;  // padding at bottom (space for trainer)
 
 function mapTotalH(){ return MAP_PAD_TOP + EPISODES.length * MAP_ROW_PX + MAP_PAD_BOT; }
@@ -1042,6 +1057,17 @@ function renderMap(){
   $("route-outer").setAttribute("d", d);
   $("route-inner").setAttribute("d", d);
 
+  // お城（マップ最上部）
+  const castleUnlocked = leagueUnlocked();
+  const castleX = 50, castleY = MAP_PAD_TOP * 0.5;
+  const castle = document.createElement("div");
+  castle.className = "castle-node" + (castleUnlocked ? "" : " locked-castle");
+  castle.style.left = castleX + "%"; castle.style.top = castleY + "px";
+  castle.innerHTML = '<div class="castle-tower">🏰</div><div class="castle-sign">' +
+    (castleUnlocked ? "⚔️ 最終試練" : "🔒 全バッジで解放") + '</div>';
+  if(castleUnlocked) castle.addEventListener("click", openLeagueGate);
+  inner.appendChild(castle);
+
   // Trainer at start
   const tr=document.createElement("div"); tr.className="trainer"; tr.textContent="🕵️";
   tr.style.left=startX+"%"; tr.style.top=(startY-10)+"px"; inner.appendChild(tr);
@@ -1051,14 +1077,22 @@ function renderMap(){
   EPISODES.forEach((ep,i)=>{
     const cleared=!!S.cleared[epId(ep)], unlocked=isUnlocked(i);
     const pos=routePosPx(i);
+    const boss = BOSSES.find(b=>b.ep===ep.ep);
+    const bossEarned = boss && (S.bossBadges||[]).includes(ep.ep);
     const patch=document.createElement("div");
-    patch.className="patch "+(cleared?"cleared":unlocked?"new":"locked");
+    let cls = "patch " + (cleared?"cleared":unlocked?"new":"locked");
+    if(boss) cls += " boss-node";
+    patch.className = cls;
     patch.style.left=pos.xPct+"%"; patch.style.top=pos.yPx+"px";
-    patch.innerHTML='<div class="field2"><span class="mon">'+(unlocked?(cleared?"✅":ep.monster.emoji):"🔒")+'</span></div>'+
-      '<div class="sign">'+(unlocked?"EP"+ep.ep+" "+ep.location:"？？？")+'</div>';
+    const monEmoji = unlocked ? (cleared ? "✅" : ep.monster.emoji) : "🔒";
+    const signLabel = unlocked ? "EP"+ep.ep+" "+ep.location : "？？？";
+    patch.innerHTML =
+      '<div class="field2"><span class="mon">'+monEmoji+'</span></div>' +
+      '<div class="sign">'+(boss?"⚡ ":"")+signLabel+'</div>' +
+      (boss ? '<div class="boss-badge-overlay">'+(bossEarned ? boss.badge : "⚔️")+'</div>' : "");
     if(unlocked){
       patch.addEventListener("click", ()=>openStory(ep));
-      scrollTargetY = pos.yPx; // track last unlocked
+      scrollTargetY = pos.yPx;
     }
     inner.appendChild(patch);
   });
@@ -1070,6 +1104,7 @@ function renderMap(){
   }, 30);
 
   // バッジ行（EPバッジ + ボスバッジ）
+  const bossDone = (S.bossBadges||[]).length;
   const br = $("badge-row"); br.innerHTML="";
   EPISODES.forEach(ep=>{
     const earned = !!S.cleared[epId(ep)];
@@ -1092,11 +1127,19 @@ function renderMap(){
     }
   });
 
+  // バッジカウントピル更新（トップバー）
+  const badgeCountEl = $("badge-count");
+  if(bossDone > 0){
+    badgeCountEl.textContent = "🎖️ "+bossDone+"/6";
+    badgeCountEl.style.display = "";
+  } else {
+    badgeCountEl.style.display = "none";
+  }
+
   // 目標バナー
   const clearedCount = Object.keys(S.cleared).length;
   const remain = EPISODES.length - clearedCount;
   const banner = $("goal-banner");
-  const bossDone = (S.bossBadges||[]).length;
   if(leagueUnlocked()){
     banner.classList.add("cleared");
     $("goal-text").innerHTML = S.leagueClear
