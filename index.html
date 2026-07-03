@@ -499,6 +499,8 @@ $("b-commands").addEventListener("click", (e)=>{
   else if(c==="run") doRun();
 });
 
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
 function doHint(){
   const q=B.ep.quiz[B.qIndex];
   B.hintUsed=true; B.perfect=false;
@@ -518,11 +520,13 @@ function showMoves(){
   const q=B.ep.quiz[B.qIndex];
   $("b-textbox").classList.remove("hidden");
   $("b-text").innerHTML = "▼ "+q.q;
+  // 選択肢をシャッフル(正解が常に先頭にならないように)
+  B.opts = shuffle(q.choices.map((text,i)=>({ text, correct: i===q.answer })));
   const list=$("move-list"); list.innerHTML="";
-  q.choices.forEach((c,i)=>{
+  B.opts.forEach((o,i)=>{
     const b=document.createElement("button");
     b.className="move";
-    b.innerHTML = c + '<small>けいけつ・PP 5/5</small>';
+    b.innerHTML = o.text + '<small>けいけつ・PP 5/5</small>';
     b.addEventListener("click", ()=>useMove(i));
     list.appendChild(b);
   });
@@ -534,8 +538,8 @@ function showMoves(){
 
 function useMove(i){
   const ep=B.ep, q=ep.quiz[B.qIndex];
-  const correct = i===q.answer;
-  const chosen = q.choices[i];
+  const correct = B.opts[i].correct;
+  const chosen = B.opts[i].text;
   hidePanels();
   if(correct){
     const dmg = Math.round(B.eMax / ep.quiz.length) + (S.stats.diagnosis-1)*3;
