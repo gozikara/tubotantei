@@ -34,32 +34,40 @@
   #app { max-width: 480px; margin: 0 auto; height: 100dvh; position: relative;
     display: flex; flex-direction: column; background: #0e1620; }
 
-  /* pixel-ish text */
   .pixel { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: .02em; }
 
-  /* ===== Top bar (hidden during battle) ===== */
+  /* ===== Top bar ===== */
   .topbar { padding: calc(9px + var(--safe-t)) 14px 9px; display: flex; align-items: center; gap: 10px;
     border-bottom: 1px solid rgba(255,255,255,.1); flex: 0 0 auto; background:#111e2e; }
   .badge { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 50% 40%,#1b3a63,#0e1d33);
     border: 2px solid #ffc832; display: grid; place-items: center; font-size: 1rem; flex:0 0 auto; }
+  .topbar .who { flex:1; min-width:0; }
   .topbar .name { font-weight: 900; font-size: .9rem; color: #ffc832; }
   .topbar .lvl { font-size: .68rem; color: #8899aa; }
-  .topbar .coin { margin-left:auto; font-size:.82rem; font-weight:900; color:#ffc832; }
+  .rank-pill { display:inline-block; font-size:.62rem; font-weight:900; color:#3a2600;
+    background:#ffc832; padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:middle; }
+  .topbar .coin { font-size:.82rem; font-weight:900; color:#ffc832; white-space:nowrap; }
 
   .screen { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
   .screen.hidden { display: none; }
   .h { font-size: 1.1rem; font-weight: 900; color: #ffc832; margin-bottom: 4px; }
   .sub { font-size: .78rem; color: #8899aa; margin-bottom: 16px; line-height: 1.6; }
 
-  /* ===== Map (Pokémon風の見下ろしルート) ===== */
-  .map-wrap { position: relative; width: 100%; aspect-ratio: 3/4; max-height: 58vh; margin: 0 auto 16px;
-    border: 4px solid #2c6c28; border-radius: 8px; overflow: hidden; image-rendering: pixelated;
+  /* ===== Map ===== */
+  .goal-banner { display:flex; align-items:center; gap:8px; background:rgba(255,200,50,.1);
+    border:1px solid rgba(255,200,50,.3); border-radius:10px; padding:9px 14px; margin-bottom:14px;
+    font-size:.82rem; font-weight:700; color:#ffd54a; line-height:1.5; }
+  .goal-banner .gb-icon { font-size:1.3rem; flex:0 0 auto; }
+  .goal-banner.cleared { background:rgba(74,255,127,.1); border-color:rgba(74,255,127,.4); color:#4aff7f; }
+  .map-wrap { position: relative; width: 100%; height: 56vh; margin: 0 auto 16px;
+    border: 4px solid #2c6c28; border-radius: 8px; overflow-y: auto; overflow-x: hidden; image-rendering: pixelated;
+  }
+  .map-inner { position: relative; width: 100%;
     background-color: #7ec84e;
-    background-image:
-      repeating-conic-gradient(#7ec84e 0 25%, #75c045 0 50%);
+    background-image: repeating-conic-gradient(#7ec84e 0 25%, #75c045 0 50%);
     background-size: 34px 34px;
   }
-  .route-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+  .route-svg { position: absolute; inset: 0; width: 100%; z-index: 1; }
   .route-svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .tree { position: absolute; transform: translate(-50%,-50%); width: 32px; height: 38px; z-index: 2; pointer-events: none; }
   .tree::before { content:""; position:absolute; top:0; left:0; width:32px; height:28px; border-radius:9px 9px 7px 7px;
@@ -67,10 +75,8 @@
   .tree::after { content:""; position:absolute; bottom:0; left:12px; width:8px; height:12px; background:#7a4a26; border:2px solid #4e2f18; border-top:none; }
   .flower { position:absolute; transform:translate(-50%,-50%); width:8px; height:8px; border-radius:50%; z-index:1;
     box-shadow: 0 0 0 2px #ffd23a inset; background:#fff6c8; }
-
   .trainer { position: absolute; transform: translate(-50%,-60%); font-size: 2rem; z-index: 4;
     filter: drop-shadow(1px 2px 2px rgba(0,0,0,.4)); pointer-events: none; }
-
   .patch { position: absolute; transform: translate(-50%,-50%); z-index: 3;
     display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; width: 82px; }
   .patch .field2 { width: 72px; height: 48px; border-radius: 5px; display: grid; place-items: center; position: relative;
@@ -86,6 +92,10 @@
     border: 2px solid #6f4a22; border-radius: 3px; font-size: .62rem; font-weight: 900; padding: 2px 8px;
     white-space: nowrap; box-shadow: 0 2px 0 #6f4a22; }
   .patch.locked .sign { color: #5a4a34; }
+  .badge-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .ep-badge { font-size:.7rem; font-weight:800; padding:4px 10px; border-radius:8px; background:#111e33;
+    border:2px solid rgba(255,255,255,.1); color:#8899aa; }
+  .ep-badge.earned { border-color:#ffc832; color:#ffc832; background:rgba(255,200,50,.1); }
 
   /* ===== Story ===== */
   .patient-tag { display:inline-flex; align-items:center; gap:6px; font-size:.74rem; color:#ffc832;
@@ -101,24 +111,118 @@
   .line.detective .bubble { border-color:#ffc832; background:rgba(255,200,50,.08); }
   .line .who { display:block; font-size:.64rem; font-weight:800; color:#8899aa; margin-bottom:3px; }
 
-  /* ============================================================
-     BATTLE — faithful Pokémon layout
-     ============================================================ */
+  /* ===== POKÉMON LEAGUE ===== */
+  #league-gate { position:absolute; inset:0; z-index:95; display:none; flex-direction:column;
+    align-items:center; justify-content:center;
+    background: radial-gradient(circle at 50% 35%, #1a1000 0%, #0a0800 100%); }
+  #league-gate.show { display:flex; animation:bossIn .6s ease; }
+  .lg-rays { font-size:2.5rem; animation:spin 4s linear infinite; display:inline-block; margin-bottom:4px; }
+  .lg-trophy { font-size:5.5rem; filter:drop-shadow(0 0 24px #ffc832); animation:bossBounce 2s infinite; margin:8px 0; }
+  .lg-title { font-size:1.8rem; font-weight:900; color:#ffc832; letter-spacing:.04em; margin-bottom:4px; }
+  .lg-sub { font-size:.8rem; color:#a09060; margin-bottom:6px; }
+  .lg-cond { background:rgba(255,200,50,.08); border:1px solid rgba(255,200,50,.25); border-radius:10px;
+    padding:12px 18px; margin:0 20px 20px; font-size:.8rem; line-height:1.8; color:#d4b040; max-width:340px; text-align:center; }
+  .lg-btns { display:flex; flex-direction:column; gap:10px; width:240px; }
+
+  /* リーグ問題画面 */
+  #league-quiz { position:absolute; inset:0; z-index:96; display:none; flex-direction:column;
+    background:#0e1620; }
+  #league-quiz.show { display:flex; }
+  .lq-header { background:linear-gradient(135deg,#1a0030,#30100a); padding:calc(10px + var(--safe-t)) 16px 10px;
+    flex:0 0 auto; border-bottom:2px solid #ffc832; }
+  .lq-stage { font-size:.7rem; font-weight:900; color:#ffc832; letter-spacing:.1em; text-transform:uppercase; }
+  .lq-enemy { font-size:1.05rem; font-weight:900; color:#fff; margin:2px 0; }
+  .lq-progress { display:flex; gap:5px; margin-top:6px; }
+  .lq-dot { width:28px; height:6px; border-radius:3px; background:#2a3040; transition:background .3s; }
+  .lq-dot.correct { background:#78c850; }
+  .lq-dot.wrong   { background:#f85038; }
+  .lq-dot.current { background:#ffc832; animation:pulse 1s infinite; }
+  .lq-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px; }
+  .lq-qnum { font-size:.7rem; color:#8899aa; font-weight:700; }
+  .lq-question { font-size:1rem; font-weight:700; line-height:1.6; color:#e8eaf0; }
+  .lq-choices { display:flex; flex-direction:column; gap:8px; }
+  .lq-choice { background:#111e33; border:2px solid rgba(74,158,255,.2); border-radius:10px;
+    padding:12px 16px; font-size:.9rem; font-weight:600; color:#c8d8e8; cursor:pointer;
+    transition:border-color .15s,background .15s; text-align:left; }
+  .lq-choice:active { transform:scale(.97); }
+  .lq-choice.picked-correct { border-color:#78c850; background:rgba(120,200,80,.15); color:#78c850; }
+  .lq-choice.picked-wrong   { border-color:#f85038; background:rgba(248,80,56,.12); color:#f85038; }
+  .lq-choice.reveal-correct { border-color:#78c850; }
+  .lq-choice[disabled] { cursor:default; }
+  .lq-explain { background:#1a2840; border-left:3px solid #ffc832; border-radius:0 8px 8px 0;
+    padding:10px 14px; font-size:.8rem; color:#a8c0d8; line-height:1.6; display:none; }
+  .lq-explain.show { display:block; }
+  .lq-next { margin-top:auto; }
+
+  /* ステージクリア / 失敗バナー */
+  #league-result { position:absolute; inset:0; z-index:97; display:none; flex-direction:column;
+    align-items:center; justify-content:center; background:rgba(0,0,0,.92); }
+  #league-result.show { display:flex; animation:fade .3s; }
+  .lr-icon { font-size:4.5rem; margin-bottom:12px; }
+  .lr-title { font-size:1.5rem; font-weight:900; margin-bottom:6px; }
+  .lr-body { font-size:.85rem; color:#8899aa; text-align:center; line-height:1.6; margin-bottom:24px; max-width:280px; }
+  .lr-score { font-size:2.2rem; font-weight:900; color:#ffc832; margin-bottom:4px; }
+
+  /* 殿堂入り */
+  #league-hof { position:absolute; inset:0; z-index:98; display:none; flex-direction:column;
+    align-items:center; justify-content:center;
+    background: radial-gradient(circle at 50% 40%, #001020 0%, #000508 100%); overflow-y:auto; }
+  #league-hof.show { display:flex; }
+  .hof-logo { font-size:3rem; margin-bottom:4px; }
+  .hof-title { font-size:1.6rem; font-weight:900; color:#ffc832; margin-bottom:4px; }
+  .hof-sub { font-size:.8rem; color:#6888a8; margin-bottom:20px; }
+  .hof-card { background:rgba(255,200,50,.06); border:1px solid rgba(255,200,50,.3); border-radius:14px;
+    padding:18px 22px; margin:0 20px 20px; width:calc(100% - 40px); max-width:340px; }
+  .hof-row { display:flex; justify-content:space-between; align-items:center; font-size:.82rem;
+    padding:5px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+  .hof-row:last-child { border-bottom:none; }
+  .hof-label { color:#8899aa; }
+  .hof-val { font-weight:800; color:#ffc832; }
+  .hof-badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; justify-content:center; font-size:1.5rem; }
+  .hof-flame { font-size:2rem; animation:flash2 .8s infinite alternate; }
+
+  /* ===== Boss Challenge ===== */
+  #boss-overlay { position:absolute; inset:0; z-index:90; display:none; flex-direction:column;
+    align-items:center; justify-content:center;
+    background: radial-gradient(circle at 50% 40%, #1a0030 0%, #0a0010 100%);
+    animation: bossIn .5s ease; }
+  #boss-overlay.show { display:flex; }
+  @keyframes bossIn { from{opacity:0;transform:scale(1.05)} to{opacity:1;transform:scale(1)} }
+  .boss-top-label { font-size:.72rem; font-weight:900; letter-spacing:.2em; color:#ff4488;
+    text-transform:uppercase; margin-bottom:8px; }
+  .boss-lightning { font-size:2rem; animation: flash2 .6s infinite alternate; }
+  @keyframes flash2 { from{opacity:.4} to{opacity:1} }
+  .boss-title-bar { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+  .boss-emoji { font-size:5rem; animation:bossBounce 1.2s infinite; filter:drop-shadow(0 0 18px #ff2288); }
+  @keyframes bossBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .boss-name { font-size:1.3rem; font-weight:900; color:#ff88cc; margin-bottom:8px; text-align:center; }
+  .boss-chapter { font-size:.72rem; color:#a060a0; margin-bottom:14px; }
+  .boss-msg { background:rgba(255,40,130,.08); border:1px solid rgba(255,40,130,.3);
+    border-radius:12px; padding:14px 18px; font-size:.88rem; color:#ffc8e8;
+    line-height:1.6; text-align:center; margin:0 16px 24px; max-width:360px; }
+  .boss-btns { display:flex; flex-direction:column; gap:10px; width:240px; }
+  #btn-boss-skip { font-size:.78rem; color:#8899aa; opacity:.7; }
+
+  #boss-victory { position:absolute; inset:0; z-index:91; display:none; flex-direction:column;
+    align-items:center; justify-content:center;
+    background: radial-gradient(circle at 50% 40%, #001a30 0%, #000a10 100%); }
+  #boss-victory.show { display:flex; }
+  .bv-rays { font-size:3rem; animation:spin 3s linear infinite; display:inline-block; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .bv-badge { font-size:4rem; margin:16px 0; animation:popIn .5s cubic-bezier(.36,.07,.19,.97); }
+  @keyframes popIn { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+  .bv-title { font-size:1.4rem; font-weight:900; color:#ffc832; margin-bottom:6px; }
+  .bv-sub { font-size:.82rem; color:#8899aa; margin-bottom:24px; }
+
+  /* ===== Battle ===== */
   #battle { position: absolute; inset: 0; z-index: 60; display: none; flex-direction: column; background:#000; }
   #battle.show { display: flex; }
-
   .field {
     position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden;
-    background:
-      linear-gradient(180deg, #78b8e8 0%, #a8d8f0 42%, #cfeafc 55%, #cfeafc 100%);
+    background: linear-gradient(180deg, #78b8e8 0%, #a8d8f0 42%, #cfeafc 55%, #cfeafc 100%);
   }
-  /* ground band */
-  .field::after {
-    content:""; position:absolute; left:0; right:0; bottom:0; height:46%;
-    background: linear-gradient(180deg, #b8e070 0%, #98c850 40%, #86bc44 100%);
-  }
-
-  /* status plates */
+  .field::after { content:""; position:absolute; left:0; right:0; bottom:0; height:46%;
+    background: linear-gradient(180deg, #b8e070 0%, #98c850 40%, #86bc44 100%); }
   .plate { position: absolute; background: var(--panel); color: var(--ink);
     border: 3px solid var(--frame); box-shadow: inset 0 0 0 2px #fff, 2px 3px 0 rgba(0,0,0,.25);
     padding: 6px 12px 8px; z-index: 3; }
@@ -134,11 +238,8 @@
   .exptag { font-size:.58rem; font-weight:900; color:#3070c0; }
   .expbar { flex:1; height:4px; background:#485058; border-radius:3px; padding:1px; }
   .expbar > i { display:block; height:100%; border-radius:2px; background: var(--exp-blue); transition: width .5s; }
-
   .plate.enemy { top: 14px; left: 12px; border-radius: 6px 6px 16px 6px; min-width: 176px; }
   .plate.mine  { bottom: 8px; right: 12px; border-radius: 6px 16px 6px 6px; min-width: 190px; }
-
-  /* battler sprites on platforms */
   .battler { position: absolute; z-index: 2; text-align: center; }
   .battler .disc { width: 128px; height: 34px; border-radius: 50%;
     background: radial-gradient(ellipse at 50% 45%, rgba(120,180,70,.9), rgba(120,180,70,0) 70%); margin: -14px auto 0; }
@@ -160,16 +261,12 @@
   .flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:4; }
   .flash.go { animation: flash .28s; }
   @keyframes flash { 0%{opacity:0} 30%{opacity:.75} 100%{opacity:0} }
-
-  /* floating damage number */
   .dmgpop { position:absolute; left:50%; top:-6px; transform:translateX(-50%); z-index:6;
     font-family:'Courier New',monospace; font-weight:900; font-size:1.5rem; color:#fff;
     text-shadow:0 0 3px #f85038, 2px 2px 0 #a01810; opacity:0; pointer-events:none; white-space:nowrap; }
   .dmgpop.go { animation: dmgup .9s ease-out forwards; }
   @keyframes dmgup { 0%{opacity:1; transform:translate(-50%,0) scale(1.3)} 20%{transform:translate(-50%,-6px) scale(1)} 100%{opacity:0; transform:translate(-50%,-42px) scale(1)} }
   .dmgpop.crit { color:#ffe14d; text-shadow:0 0 4px #ff8a1e, 2px 2px 0 #a85800; }
-
-  /* battle-entry transition */
   #transition { position:absolute; inset:0; z-index:70; display:none; background:#000; }
   #transition.t-flash { display:block; animation: tflash .58s steps(1) forwards; }
   @keyframes tflash { 0%{background:#fff} 12%{background:#0c0f16} 24%{background:#fff} 36%{background:#0c0f16} 48%{background:#fff} 60%,100%{background:#000} }
@@ -177,14 +274,13 @@
   @keyframes topen { from{clip-path:inset(0 0 0 0)} to{clip-path:inset(50% 0 50% 0)} }
   @media (prefers-reduced-motion: reduce) { #transition.t-flash,#transition.t-open{ animation-duration:.01s } }
 
-  /* CTA — サロン導線 */
+  /* CTA */
   .cta-mini { display:block; width:100%; margin-top:7px; border:none; cursor:pointer; font-family:inherit;
     background:linear-gradient(#ffd23a,#f5b21e); color:#3a2600; font-weight:900; font-size:.82rem;
     padding:11px 14px; border-radius:10px; box-shadow:0 3px 0 #b9860f; text-align:left; }
   .cta-mini:active { transform:translateY(1px); box-shadow:0 2px 0 #b9860f; }
   .cta-mini .arw { float:right; }
-
-  .cta-panel { margin-top:7px; background:linear-gradient(160deg,#15243c,#0f1b2e); border:2px solid var(--gold, #ffc832);
+  .cta-panel { margin-top:7px; background:linear-gradient(160deg,#15243c,#0f1b2e); border:2px solid #ffc832;
     border-radius:14px; padding:16px; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,.4); }
   .cta-badge { display:inline-block; font-size:.66rem; font-weight:900; letter-spacing:.06em; color:#3a2600;
     background:#ffc832; padding:3px 12px; border-radius:999px; margin-bottom:9px; }
@@ -198,26 +294,21 @@
   @keyframes ctapulse { 0%,100%{box-shadow:0 4px 0 #b9860f, 0 0 0 0 rgba(255,210,58,.5)} 60%{box-shadow:0 4px 0 #b9860f, 0 0 0 10px rgba(255,210,58,0)} }
   .cta-skip { width:100%; margin-top:9px; background:none; border:none; color:#8899aa; font-family:inherit; font-weight:700; font-size:.82rem; cursor:pointer; padding:8px; }
 
-  /* bottom control area */
+  /* control */
   .control { flex: 0 0 auto; padding: 6px 8px calc(8px + var(--safe-b)); background: #202830; }
   .textbox { position: relative; background: var(--panel); color: var(--ink);
     border: 3px solid var(--box-blue); box-shadow: inset 0 0 0 3px var(--box-blue-lt); border-radius: 10px;
     min-height: 92px; padding: 14px 16px; font-size: .96rem; line-height: 1.55; font-weight: 700; display:flex; align-items:center; }
   .textbox .cursor { position:absolute; right:12px; bottom:8px; color:var(--box-blue); animation: blink 1s steps(1) infinite; font-size:.9rem; }
   @keyframes blink { 50%{opacity:0} }
-
-  /* command / move panels overlay the textbox area */
   .panel-row { display:flex; gap:6px; margin-top:6px; }
   .cmd-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; flex:1; }
-  .cmd {
-    background: var(--panel); color: var(--ink); border: 3px solid var(--box-blue);
+  .cmd { background: var(--panel); color: var(--ink); border: 3px solid var(--box-blue);
     box-shadow: inset 0 0 0 2px var(--box-blue-lt); border-radius: 9px; padding: 13px 10px 13px 26px;
-    font-size: .95rem; font-weight: 900; text-align: left; position: relative; cursor: pointer; font-family: inherit;
-  }
+    font-size: .95rem; font-weight: 900; text-align: left; position: relative; cursor: pointer; font-family: inherit; }
   .cmd::before { content:"▶"; position:absolute; left:9px; top:50%; transform:translateY(-50%); color:var(--box-blue); opacity:0; font-size:.8rem; }
   .cmd:active { background:#eef2ff; }
   .cmd.sel::before { opacity:1; }
-
   .move-list { display:flex; flex-direction:column; gap:5px; flex:1.4; background:var(--panel);
     border:3px solid var(--box-blue); box-shadow: inset 0 0 0 2px var(--box-blue-lt); border-radius:9px; padding:9px 8px; }
   .move { text-align:left; background:none; border:none; color:var(--ink); font-family:inherit; font-weight:900; font-size:.9rem;
@@ -231,9 +322,20 @@
   .move-info .mi-type { align-self:flex-start; font-size:.66rem; font-weight:900; color:#fff; background:#7050a0; padding:2px 9px; border-radius:4px; }
   .move-info .mi-hint { font-size:.66rem; color:#607080; font-weight:700; line-height:1.4; }
 
-  .hidden { display: none !important; }
+  /* ===== Rival overlay (ボーン教授) ===== */
+  #rival-overlay { position:absolute; inset:0; z-index:80; display:none; flex-direction:column;
+    align-items:center; justify-content:flex-end; padding:20px; background:rgba(6,14,26,0.7);
+    backdrop-filter:blur(3px); }
+  #rival-overlay.show { display:flex; animation:fade .25s; }
+  .rival-box { background:var(--panel); color:var(--ink); border:4px solid var(--frame);
+    box-shadow: inset 0 0 0 2px #fff, 0 8px 30px rgba(0,0,0,.5); border-radius:12px;
+    padding:16px 18px; width:100%; max-width:420px; position:relative; }
+  .rival-box .rb-who { font-size:.68rem; font-weight:900; color:#8899aa; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .rival-box .rb-text { font-size:.96rem; font-weight:700; line-height:1.6; color:var(--ink); }
+  .rival-box .rb-tap { position:absolute; right:12px; bottom:10px; color:var(--box-blue);
+    font-size:.78rem; font-weight:900; animation:blink 1s steps(1) infinite; }
 
-  /* ===== Buttons (menus) ===== */
+  .hidden { display: none !important; }
   .btn { width: 100%; padding: 15px; border: none; border-radius: 11px; font-size: 1rem; font-weight: 900; cursor: pointer; font-family: inherit; transition: opacity .2s, transform .1s; }
   .btn:active { transform: scale(.98); }
   .btn.primary { background: #4a9eff; color: #fff; }
@@ -241,7 +343,7 @@
   .btn.ghost { background: transparent; color: #8899aa; border: 1px solid rgba(74,158,255,.25); }
   .btn + .btn { margin-top: 9px; }
 
-  /* ===== Dex ===== */
+  /* Dex */
   .dex-grid { display:grid; grid-template-columns:1fr; gap:11px; }
   .dex-card { background:#111e33; border:1px solid rgba(74,158,255,.25); border-radius:12px; padding:15px; }
   .dex-card.empty { opacity:.5; text-align:center; padding:22px; font-size:.85rem; color:#8899aa; }
@@ -252,7 +354,7 @@
   .dex-row { font-size:.8rem; line-height:1.7; margin-top:7px; } .dex-row b { color:#8899aa; }
   .meridian-pill { display:inline-block; font-size:.66rem; font-weight:800; color:#4a9eff; background:rgba(74,158,255,.12); padding:2px 8px; border-radius:999px; margin-left:6px; }
 
-  /* ===== Training ===== */
+  /* Training */
   .stat-card { background:#111e33; border:1px solid rgba(74,158,255,.25); border-radius:12px; padding:15px; margin-bottom:12px; }
   .stat-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.05); }
   .stat-row:last-child { border:none; }
@@ -261,7 +363,7 @@
   .stat-up { width:32px; height:32px; border-radius:7px; border:none; background:#4a9eff; color:#fff; font-size:1.1rem; font-weight:900; cursor:pointer; }
   .stat-up:disabled { opacity:.3; }
 
-  /* ===== Nav ===== */
+  /* Nav */
   .nav { flex:0 0 auto; display:flex; border-top:1px solid rgba(255,255,255,.1); background:#111e2e; padding-bottom:var(--safe-b); }
   .nav button { flex:1; background:none; border:none; color:#8899aa; padding:9px 4px; font-family:inherit; cursor:pointer;
     display:flex; flex-direction:column; align-items:center; gap:3px; font-size:.64rem; font-weight:700; }
@@ -274,21 +376,29 @@
 <div id="app">
 
   <div class="topbar" id="topbar">
-    <div class="badge">⚔️</div>
-    <div><div class="name">ツボ刑事</div><div class="lvl" id="lvl-text">Lv.1</div></div>
+    <div class="badge" id="badge-icon">⚔️</div>
+    <div class="who">
+      <div class="name">ツボ刑事<span class="rank-pill" id="rank-pill">見習い刑事</span></div>
+      <div class="lvl" id="lvl-text">Lv.1　0 / 100 XP</div>
+    </div>
     <div class="coin" id="coin">🪙 0</div>
   </div>
 
   <!-- MAP -->
   <div class="screen" id="screen-map">
     <div class="h">🗺 事件マップ</div>
-    <div class="sub">光る草むらをタップして捜査開始。弱点の経穴(ツボ)を見抜いて症状モンスターを鎮めろ。</div>
+    <div class="goal-banner" id="goal-banner">
+      <span class="gb-icon">🏆</span>
+      <span id="goal-text">全件解決で「名探偵」称号獲得！　残り <strong id="goal-remain">3</strong> 件</span>
+    </div>
+    <div class="badge-row" id="badge-row"></div>
     <div class="map-wrap" id="map-wrap">
-      <svg class="route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <path id="route-outer" stroke="#b98a4e" stroke-width="9" vector-effect="non-scaling-stroke"/>
-        <path id="route-inner" stroke="#e0c088" stroke-width="5" vector-effect="non-scaling-stroke"/>
-      </svg>
-      <!-- 木・花・草むら・トレーナーは renderMap() が配置 -->
+      <div class="map-inner" id="map-inner">
+        <svg class="route-svg" id="route-svg" aria-hidden="true">
+          <path id="route-outer" stroke="#b98a4e" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path id="route-inner" stroke="#e0c088" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
     </div>
     <div class="sub" style="text-align:center">解決するたびに図鑑へツボ・筋肉が登録され、経験値でレベルが上がります。</div>
   </div>
@@ -323,11 +433,10 @@
     <div class="sub" style="text-align:center">「診断眼」が高いほど技の威力が上がり、「集中力」が高いほど刑事の体力(耐久)が増える。</div>
   </div>
 
-  <!-- ============ BATTLE OVERLAY ============ -->
+  <!-- BATTLE -->
   <div id="battle">
     <div class="field" id="field">
       <div class="flash" id="flash"></div>
-
       <div class="plate enemy" id="enemy-plate">
         <div class="row1">
           <span class="pname" id="e-name">???</span>
@@ -337,19 +446,16 @@
           <div class="hpbar"><i id="e-hp"></i></div>
         </div>
       </div>
-
       <div class="battler enemy">
         <div class="dmgpop" id="dmg-e"></div>
         <div class="mon enter-e" id="e-mon">😵</div>
         <div class="disc"></div>
       </div>
-
       <div class="battler mine">
         <div class="dmgpop" id="dmg-m"></div>
         <div class="mon mine enter-m" id="m-mon">🕵️</div>
         <div class="disc"></div>
       </div>
-
       <div class="plate mine" id="mine-plate">
         <div class="row1">
           <span class="pname">ツボ刑事</span>
@@ -366,12 +472,10 @@
     </div>
 
     <div class="control">
-      <!-- message -->
       <div class="textbox" id="b-textbox">
         <span id="b-text"></span>
         <span class="cursor hidden" id="b-cursor">▼</span>
       </div>
-      <!-- command menu -->
       <div class="panel-row hidden" id="b-commands">
         <div class="cmd-grid">
           <button class="cmd" data-cmd="fight">たたかう</button>
@@ -380,7 +484,6 @@
           <button class="cmd" data-cmd="run">にげる</button>
         </div>
       </div>
-      <!-- move select -->
       <div class="panel-row hidden" id="b-moves">
         <div class="move-list" id="move-list"></div>
         <div class="move-info">
@@ -389,9 +492,7 @@
           <div class="mi-hint" id="mi-hint">弱点の経穴を選べ</div>
         </div>
       </div>
-      <!-- 間違い時の軽いサロン導線(チップ) -->
       <button class="cta-mini hidden" id="b-cta-mini"></button>
-      <!-- バトル終了時の強めのサロン導線 -->
       <div class="cta-panel hidden" id="b-cta">
         <div class="cta-badge">🎓 もっと深く</div>
         <div class="cta-head" id="cta-head"></div>
@@ -401,8 +502,100 @@
       </div>
     </div>
 
-    <!-- 戦闘突入トランジション -->
     <div id="transition"></div>
+  </div>
+
+  <!-- ボーン教授 ライバルオーバーレイ -->
+  <div id="rival-overlay">
+    <div class="rival-box" id="rival-box">
+      <div class="rb-who"><span id="rival-icon">🦴</span><span>ボーン教授</span></div>
+      <div class="rb-text" id="rival-text"></div>
+      <span class="rb-tap">▼ タップで閉じる</span>
+    </div>
+  </div>
+
+  <!-- LEAGUE GATE -->
+  <div id="league-gate">
+    <div class="lg-rays">✨</div>
+    <div class="lg-trophy">🏆</div>
+    <div class="lg-title">医療刑事リーグ</div>
+    <div class="lg-sub">全バッジ取得者のみ挑戦できる最終試練</div>
+    <div class="lg-cond" id="lg-cond">
+      四天王４人 → チャンピオン を連続突破せよ<br>
+      各関門：5問中4問以上正解でクリア<br>
+      <strong style="color:#ff6666">失敗すると第1関門に戻る（ノーコンティニュー）</strong>
+    </div>
+    <div class="lg-btns">
+      <button class="btn primary" id="btn-league-start">⚔️ リーグに挑戦する</button>
+      <button class="btn ghost" id="btn-league-cancel">あとで挑戦する</button>
+    </div>
+  </div>
+
+  <!-- LEAGUE QUIZ -->
+  <div id="league-quiz">
+    <div class="lq-header">
+      <div class="lq-stage" id="lq-stage">第1関門</div>
+      <div class="lq-enemy" id="lq-enemy">基礎医学の番人</div>
+      <div class="lq-progress" id="lq-progress"></div>
+    </div>
+    <div class="lq-body">
+      <div class="lq-qnum" id="lq-qnum">問1 / 5</div>
+      <div class="lq-question" id="lq-question"></div>
+      <div class="lq-choices" id="lq-choices"></div>
+      <div class="lq-explain" id="lq-explain"></div>
+      <div class="lq-next">
+        <button class="btn primary hidden" id="btn-lq-next">つぎへ ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEAGUE STAGE RESULT -->
+  <div id="league-result">
+    <div class="lr-icon" id="lr-icon">✅</div>
+    <div class="lr-score" id="lr-score">5/5</div>
+    <div class="lr-title" id="lr-title">関門突破！</div>
+    <div class="lr-body" id="lr-body"></div>
+    <button class="btn primary" id="btn-lr-next">つぎへ ▶</button>
+    <button class="btn ghost hidden" id="btn-lr-retry">第1関門からやり直す</button>
+  </div>
+
+  <!-- HALL OF FAME -->
+  <div id="league-hof">
+    <div class="hof-logo">🏆</div>
+    <div class="hof-title">殿堂入り！</div>
+    <div class="hof-sub">医療刑事リーグ チャンピオン</div>
+    <div class="hof-card">
+      <div class="hof-row"><span class="hof-label">刑事名</span><span class="hof-val" id="hof-name">ツボ刑事</span></div>
+      <div class="hof-row"><span class="hof-label">レベル</span><span class="hof-val" id="hof-lv">Lv.1</span></div>
+      <div class="hof-row"><span class="hof-label">正答率</span><span class="hof-val" id="hof-acc">--%</span></div>
+      <div class="hof-row"><span class="hof-label">総問数</span><span class="hof-val" id="hof-total">0問</span></div>
+      <div class="hof-badges" id="hof-badges"></div>
+    </div>
+    <div class="hof-flame">🔥</div>
+    <div style="color:#6888a8;font-size:.78rem;margin:8px 0 20px">この記録は永遠に刻まれた</div>
+    <button class="btn primary" id="btn-hof-ok">マップへもどる</button>
+  </div>
+
+  <!-- BOSS INTRO OVERLAY -->
+  <div id="boss-overlay">
+    <div class="boss-top-label">⚡ BOSS CHALLENGE ⚡</div>
+    <div class="boss-emoji" id="boss-emoji">👑</div>
+    <div class="boss-name" id="boss-name">ヤブ医師</div>
+    <div class="boss-chapter" id="boss-chapter">第1章ボス</div>
+    <div class="boss-msg" id="boss-msg">「お前ごときが俺に挑むか？」</div>
+    <div class="boss-btns">
+      <button class="btn primary" id="btn-boss-fight">⚔️ 受けて立つ！</button>
+      <button class="btn ghost" id="btn-boss-skip">あとで挑戦する</button>
+    </div>
+  </div>
+
+  <!-- BOSS VICTORY OVERLAY -->
+  <div id="boss-victory">
+    <div class="bv-rays">✨</div>
+    <div class="bv-badge" id="bv-badge">🎖️</div>
+    <div class="bv-title" id="bv-title">第1章クリア！</div>
+    <div class="bv-sub" id="bv-sub">バッジを手に入れた！</div>
+    <button class="btn primary" id="btn-bv-ok">マップへもどる</button>
   </div>
 
   <!-- NAV -->
@@ -414,22 +607,18 @@
 
 </div>
 
-<script src="js/data.js"></script>
+<script src="js/data.js?v=4"></script>
 <script>
 /* ============================================================
- * ツボ刑事 — Pokémon風バトル
+ * ツボ刑事 — Pokémon風バトル (v2: ランク・サウンド・ライバル)
  * ============================================================ */
 const EPISODES = (window.EPISODES || []).slice().sort((a,b)=>a.ep-b.ep);
 const SAVE_KEY = "tuboKeijiSave_v3";
 const XP_PER_LEVEL = 100;
 
-/* ============================================================
- *  サロン導線(CTA)設定 — ここだけ差し替えればOK
- *  name: 表示名 / url: 入会・LPページのURL(タップで新タブで開く)
- * ============================================================ */
 const SALON = {
-  name: "セラピスト オンラインサロン",              // TODO: 実際のサロン名に変更
-  url:  "https://example.com/salon"               // TODO: 実際のLP/入会URLに変更
+  name: "セラピスト オンラインサロン",
+  url:  "https://example.com/salon"
 };
 function openSalon(){
   if(!SALON.url || SALON.url.indexOf("example.com")>=0){
@@ -438,19 +627,281 @@ function openSalon(){
   }
   try { window.open(SALON.url, "_blank", "noopener"); } catch(e){}
 }
+
+/* ===== ランク定義 ===== */
+const RANKS = [
+  { lv:1, name:'見習い刑事', badge:'🔰' },
+  { lv:3, name:'一般刑事',   badge:'🥈' },
+  { lv:5, name:'熟練刑事',   badge:'🥇' },
+  { lv:8, name:'名探偵',     badge:'🏆' },
+];
+function getRank(lv){ return [...RANKS].reverse().find(r=>lv>=r.lv) || RANKS[0]; }
+
+/* ===== サウンドエンジン (Web Audio API) ===== */
+const SFX = (() => {
+  let ctx = null;
+  const init = () => { if(!ctx) try{ ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} return ctx; };
+  function tone(freq, dur, type='sine', vol=0.25){
+    try{
+      const c=init(); if(!c) return;
+      const osc=c.createOscillator(), g=c.createGain();
+      osc.connect(g); g.connect(c.destination);
+      osc.type=type; osc.frequency.value=freq;
+      g.gain.setValueAtTime(vol, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+dur);
+      osc.start(); osc.stop(c.currentTime+dur);
+    }catch(e){}
+  }
+  function seq(notes, gap=80){ notes.forEach(([f,d,t,v],i)=>setTimeout(()=>tone(f,d,t||'sine',v||0.25),i*gap)); }
+  return {
+    correct:  ()=>seq([[523,.08],[659,.08],[784,.2]]),
+    wrong:    ()=>seq([[330,.15,'sawtooth',.2],[220,.28,'sawtooth',.15]],120),
+    levelup:  ()=>seq([[523,.07],[659,.07],[784,.07],[1047,.35]],95),
+    victory:  ()=>seq([[523,.07],[659,.07],[784,.07],[659,.07],[784,.07],[1047,.45]],85),
+    enter:    ()=>seq([[220,.08,'square',.15],[330,.08,'square',.15]],70),
+    critical: ()=>seq([[1047,.05],[1319,.15]],55),
+    bonus:    ()=>seq([[784,.07],[880,.07],[1047,.07],[1319,.3]],90),
+  };
+})();
+
+/* ===== ボーン教授メッセージ ===== */
+const RIVAL_BY_EP = {
+  ep1: "ふむ…最初の事件を解決したな。だが、まだ序の口じゃ。筋肉とツボの知識は現場で初めて本物になる。",
+  ep2: "2件目か。なかなかやるではないか。さらに3件目が正念場じゃぞ。諦めずに続けよ。",
+  ep3: "全件解決…見事じゃ。これがお前の『名探偵』への第一歩。現場でも迷わず手を動かせるようになれ。",
+};
+const RIVAL_BY_RANK = {
+  '一般刑事': "レベルが上がったな。「一般刑事」に昇格じゃ。もっと鍛えよ。",
+  '熟練刑事': "「熟練刑事」か…本物の腕前が見えてきた。",
+  '名探偵':   "「名探偵」に到達したか。これで終わりではない。現場での実践が真の証明じゃ！",
+};
+
+/* ===== ボスデータ ===== */
+const BOSS_EPS = [5, 10, 15, 20, 25, 30];
+const BOSSES = [
+  { ep:5,  name:'ヤブ医師ガンバ',         emoji:'🩻', badge:'🎖️',  chapter:'第1章ボス',
+    msg:'「フハハ！EP5まで来たか。だが、俺の罠クイズで終わりだ！」' },
+  { ep:10, name:'エセカイロ師 ダキタ',     emoji:'🦴', badge:'🏅',  chapter:'第2章ボス',
+    msg:'「10件解決？上出来だ。だがここからは次元が違う…覚悟しろ！」' },
+  { ep:15, name:'誤診の名人・ドクターX',   emoji:'🎭', badge:'⭐',  chapter:'第3章ボス',
+    msg:'「ここまで来た者を俺は見たことがない。お前が本物かどうか、試してやろう。」' },
+  { ep:20, name:'骸骨博士の弟子 コツコ',  emoji:'💀', badge:'🌟',  chapter:'第4章ボス',
+    msg:'「師匠の骸骨博士から言われておる。"真の刑事が来たら止めよ"と…！」' },
+  { ep:25, name:'シンジケート幹部 クロウ', emoji:'🦹', badge:'💎',  chapter:'第5章ボス',
+    msg:'「シンジケートに弓を引くとは胆が据わっておるな。全力でつぶしてやる！」' },
+  { ep:30, name:'ヤブ医師シンジケートのボス', emoji:'👑', badge:'🏆',  chapter:'最終ボス',
+    msg:'「ついに辿り着いたか…真の名探偵よ。俺を倒せれば、お前は本物だ！」' },
+];
+let currentBoss = null;
+
+/* ===== ポケモンリーグ ===== */
+const LEAGUE_STAGES = [
+  { name:"第1関門", enemy:"基礎解剖の番人 アナトミウス", emoji:"🧬", epRange:[1,5],  passScore:4, msg:"「筋肉の起始・停止も怪しいようでは話にならん！」" },
+  { name:"第2関門", enemy:"病態推論の番人 パソロジア",   emoji:"🔬", epRange:[6,12], passScore:4, msg:"「症状から原因を絞れるか？論理の試練じゃ！」" },
+  { name:"第3関門", enemy:"臨床判断の番人 クリニカル",   emoji:"🩺", epRange:[13,20],passScore:4, msg:"「経穴の取穴を間違えれば患者が苦しむだけじゃ！」" },
+  { name:"第4関門", enemy:"緊急対応の番人 エマージェント",emoji:"🚨", epRange:[21,28],passScore:4, msg:"「刑事なら、どんな症例にも即座に答えを出せ！」" },
+  { name:"チャンピオン戦", enemy:"骸骨博士 THE CHAMPION",  emoji:"💀", epRange:[1,30], passScore:4, msg:"「30件の事件を解決した君を、私が最後に試そう。全力でこい！」" },
+];
+
+let L = { stage:0, qIndex:0, answers:[], stageScores:[], totalQ:0, totalCorrect:0 };
+
+function leagueUnlocked(){
+  const badges = S.bossBadges || [];
+  return BOSSES.every(b=>badges.includes(b.ep));
+}
+
+function openLeagueGate(){
+  $("league-gate").classList.add("show");
+  SFX.levelup();
+}
+
+/* initLeagueEvents() は $ 定義後に呼ぶ */
+
+function buildLeaguePool(epRange, count=5){
+  const [lo,hi] = epRange;
+  const eps = EPISODES.filter(e=>e.ep>=lo&&e.ep<=hi);
+  // Shuffle and flatten quiz questions
+  const all = eps.flatMap(e=>e.quiz.map(q=>({...q, epTitle:e.title, muscleName:e.muscle.name})));
+  // Fisher-Yates shuffle
+  for(let i=all.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+  return all.slice(0,count);
+}
+
+let leaguePool = [];
+
+function startLeagueStage(stageIdx){
+  const stage = LEAGUE_STAGES[stageIdx];
+  L.stage = stageIdx; L.qIndex = 0; L.answers = [];
+  leaguePool = buildLeaguePool(stage.epRange, 5);
+
+  $("lq-stage").textContent = stage.name;
+  $("lq-enemy").textContent = stage.emoji+" "+stage.enemy;
+  renderLeagueDots();
+  showLeagueQuestion();
+  $("league-quiz").classList.add("show");
+  SFX.enter();
+}
+
+function renderLeagueDots(){
+  const bar = $("lq-progress"); bar.innerHTML="";
+  leaguePool.forEach((_,i)=>{
+    const d=document.createElement("div");
+    const ans = L.answers[i];
+    d.className = "lq-dot " + (i===L.qIndex?"current": ans===undefined?"": ans?"correct":"wrong");
+    bar.appendChild(d);
+  });
+}
+
+function showLeagueQuestion(){
+  const q = leaguePool[L.qIndex];
+  $("lq-qnum").textContent = "問"+(L.qIndex+1)+" / "+leaguePool.length;
+  $("lq-question").textContent = q.q;
+  $("lq-explain").classList.remove("show"); $("lq-explain").textContent="";
+  $("btn-lq-next").classList.add("hidden");
+  renderLeagueDots();
+
+  const cc = $("lq-choices"); cc.innerHTML="";
+  q.choices.forEach((ch,ci)=>{
+    const btn=document.createElement("button");
+    btn.className="lq-choice"; btn.textContent=ch;
+    btn.addEventListener("click", ()=>answerLeague(ci, q));
+    cc.appendChild(btn);
+  });
+}
+
+function answerLeague(chosen, q){
+  const correct = chosen===q.answer;
+  L.answers[L.qIndex] = correct;
+  L.totalQ++; if(correct) L.totalCorrect++;
+
+  // Highlight choices
+  document.querySelectorAll(".lq-choice").forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.answer) b.classList.add("reveal-correct");
+    if(i===chosen && !correct) b.classList.add("picked-wrong");
+    if(i===chosen && correct) b.classList.add("picked-correct");
+  });
+
+  // Explain
+  const exp = $("lq-explain");
+  exp.textContent = correct ? "✅ 正解！　"+( q.explain||"") : "❌ 不正解。正解は「"+q.choices[q.answer]+"」。"+(q.explain||"");
+  exp.classList.add("show");
+  correct ? SFX.correct() : SFX.wrong();
+  renderLeagueDots();
+
+  if(L.qIndex+1 >= leaguePool.length){
+    $("btn-lq-next").textContent = "結果を見る ▶";
+  } else {
+    $("btn-lq-next").textContent = "つぎへ ▶";
+  }
+  $("btn-lq-next").classList.remove("hidden");
+}
+
+/* btn-lq-next listener: initLeagueEvents() */
+
+function showLeagueStageResult(){
+  const stage = LEAGUE_STAGES[L.stage];
+  const score = L.answers.filter(Boolean).length;
+  const pass = score >= stage.passScore;
+  L.stageScores.push(score);
+
+  $("lr-icon").textContent  = pass ? "✅" : "❌";
+  $("lr-score").textContent = score+"/"+leaguePool.length;
+  $("lr-title").textContent = pass ? stage.name+" 突破！" : "突破失敗…";
+  $("lr-score").style.color = pass ? "#ffc832" : "#f85038";
+
+  const isChamp = L.stage === LEAGUE_STAGES.length-1;
+  if(pass && isChamp){
+    $("lr-body").textContent = "全ステージ制覇！殿堂入りへ…";
+    $("btn-lr-next").textContent = "🏆 殿堂入りへ！";
+    $("btn-lr-retry").classList.add("hidden");
+  } else if(pass){
+    $("lr-body").textContent = stage.enemy+"を突破した！　次の関門へ進め！";
+    $("btn-lr-next").textContent = "次の関門へ ▶";
+    $("btn-lr-retry").classList.add("hidden");
+  } else {
+    $("lr-body").innerHTML = score+"問正解（"+stage.passScore+"問必要）<br>"+stage.enemy+"に阻まれた…<br>第1関門からやり直しじゃ！";
+    $("btn-lr-next").classList.add("hidden");
+    $("btn-lr-retry").classList.remove("hidden");
+  }
+
+  $("league-result").classList.add("show");
+  pass ? SFX.victory() : SFX.wrong();
+}
+
+/* btn-lr listeners: initLeagueEvents() */
+
+function showHallOfFame(){
+  if(!S.leagueClear) S.leagueClear=true;
+  const acc = L.totalQ>0 ? Math.round(L.totalCorrect/L.totalQ*100) : 0;
+  $("hof-name").textContent = S.playerName || "ツボ刑事";
+  $("hof-lv").textContent   = "Lv."+S.level;
+  $("hof-acc").textContent  = acc+"%";
+  $("hof-total").textContent= L.totalQ+"問";
+  const bb=$("hof-badges"); bb.innerHTML="";
+  BOSSES.forEach(b=>{ const s=document.createElement("span"); s.textContent=b.badge; bb.appendChild(s); });
+  save();
+  $("league-hof").classList.add("show");
+  SFX.bonus(); setTimeout(SFX.levelup,500);
+}
+/* btn-hof-ok listener: initLeagueEvents() */
+
 const AVATAR = { narrator:"🎬", patient:"🧍", detective:"🕵️", monster:"👾" };
 const WHO = { narrator:"", patient:"患者", detective:"ツボ刑事", monster:"症状モンスター" };
 
-const defaultState = () => ({ level:1, xp:0, coins:0, points:0, stats:{diagnosis:1, focus:1}, cleared:{}, dex:{} });
+const defaultState = () => ({ level:1, xp:0, coins:0, points:0, stats:{diagnosis:1, focus:1}, cleared:{}, dex:{}, bossBadges:[] });
 let S = load();
 let current = null, dialogIdx = 0;
-let B = null; // battle state
-let ctaOnClose = null; // 終了CTAを閉じたあとの処理
+let B = null;
+let ctaOnClose = null;
 
 function epId(ep){ return "ep"+ep.ep; }
 function load(){ try{ const r=localStorage.getItem(SAVE_KEY); if(r) return Object.assign(defaultState(),JSON.parse(r)); }catch(e){} return defaultState(); }
 function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
 const $ = id => document.getElementById(id);
+
+/* ---------- リーグ イベントリスナー（$定義後） ---------- */
+function initLeagueEvents(){
+  $("btn-league-cancel").addEventListener("click", ()=>{ $("league-gate").classList.remove("show"); });
+  $("btn-league-start").addEventListener("click", ()=>{
+    $("league-gate").classList.remove("show");
+    L = { stage:0, qIndex:0, answers:[], stageScores:[], totalQ:0, totalCorrect:0 };
+    startLeagueStage(0);
+  });
+  $("btn-lq-next").addEventListener("click", ()=>{
+    if(L.qIndex+1 >= leaguePool.length){
+      $("league-quiz").classList.remove("show");
+      showLeagueStageResult();
+    } else {
+      L.qIndex++;
+      showLeagueQuestion();
+    }
+  });
+  $("btn-lr-next").addEventListener("click", ()=>{
+    $("league-result").classList.remove("show");
+    if(L.stage === LEAGUE_STAGES.length-1){ showHallOfFame(); }
+    else { startLeagueStage(L.stage+1); }
+  });
+  $("btn-lr-retry").addEventListener("click", ()=>{
+    $("league-result").classList.remove("show");
+    L.stageScores=[]; L.totalQ=0; L.totalCorrect=0;
+    startLeagueStage(0);
+  });
+  $("btn-hof-ok").addEventListener("click", ()=>{ $("league-hof").classList.remove("show"); go("map"); });
+}
+initLeagueEvents();
+
+/* ---------- ライバル(ボーン教授)オーバーレイ ---------- */
+function showRival(text, cb){
+  $("rival-text").textContent = text;
+  $("rival-overlay").classList.add("show");
+  const close = ()=>{
+    $("rival-overlay").classList.remove("show");
+    $("rival-overlay").removeEventListener("click", close);
+    if(cb) cb();
+  };
+  $("rival-overlay").addEventListener("click", close);
+}
 
 /* ---------- screens ---------- */
 function go(scr){
@@ -465,49 +916,149 @@ function go(scr){
 document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click", ()=>go(b.dataset.scr)));
 
 function renderHeader(){
+  const rank = getRank(S.level);
+  $("rank-pill").textContent = rank.name;
+  $("badge-icon").textContent = rank.badge;
   $("lvl-text").textContent = "Lv."+S.level+"　"+S.xp+" / "+XP_PER_LEVEL+" XP";
   $("coin").textContent = "🪙 "+S.coins;
 }
 
-/* ---------- map (見下ろしルート) ---------- */
+/* ---------- map ---------- */
 function isUnlocked(i){ return i===0 ? true : !!S.cleared[epId(EPISODES[i-1])]; }
-// ルート上の各事件の座標(%)。下から上へ、左右に振りながら進む
-function routePos(i){ return { x: i%2===0 ? 32 : 68, y: 74 - i*22 }; }
-const MAP_START = { x: 32, y: 92 };
-// 固定配置の木と花(装飾)
-const MAP_TREES = [ [8,12],[20,8],[50,6],[80,10],[92,20],[10,44],[90,48],[6,72],[50,90],[88,80],[16,96],[80,96] ];
-const MAP_FLOWERS = [ [45,40],[58,66],[24,58],[74,32],[40,82],[62,16] ];
+
+const MAP_ROW_PX = 54;   // vertical distance between episodes (px)
+const MAP_PAD_TOP = 50;  // padding at top of map
+const MAP_PAD_BOT = 70;  // padding at bottom (space for trainer)
+
+function mapTotalH(){ return MAP_PAD_TOP + EPISODES.length * MAP_ROW_PX + MAP_PAD_BOT; }
+function routePosPx(i){
+  const totalH = mapTotalH();
+  return {
+    xPct: i % 2 === 0 ? 28 : 68,
+    yPx: totalH - MAP_PAD_BOT - i * MAP_ROW_PX
+  };
+}
 
 function renderMap(){
-  const w = $("map-wrap");
-  w.querySelectorAll(".patch,.tree,.flower,.trainer").forEach(el=>el.remove());
+  const wrap = $("map-wrap");
+  const inner = $("map-inner");
+  inner.querySelectorAll(".patch,.tree,.flower,.trainer").forEach(el=>el.remove());
 
-  // 装飾: 木と花
-  MAP_TREES.forEach(([x,y])=>{ const t=document.createElement("div"); t.className="tree"; t.style.left=x+"%"; t.style.top=y+"%"; w.appendChild(t); });
-  MAP_FLOWERS.forEach(([x,y])=>{ const f=document.createElement("div"); f.className="flower"; f.style.left=x+"%"; f.style.top=y+"%"; w.appendChild(f); });
+  const totalH = mapTotalH();
+  inner.style.height = totalH + "px";
 
-  // ルートの道(スタート→各事件を順につなぐ)
-  const pts = [MAP_START].concat(EPISODES.map((_,i)=>routePos(i)));
+  // Update SVG dimensions
+  const svg = $("route-svg");
+  svg.setAttribute("viewBox", "0 0 100 " + totalH);
+  svg.setAttribute("preserveAspectRatio", "none");
+  svg.style.height = totalH + "px";
+
+  // Trees along both sides of the tall map
+  const treeXL = [4, 8, 6, 10, 5];
+  const treeXR = [82, 88, 85, 90, 83];
+  const treeRows = Math.ceil(totalH / 90);
+  for(let r = 0; r < treeRows; r++){
+    const yBase = 20 + r * 90;
+    [[treeXL[r%5], yBase],[treeXR[r%5], yBase+30]].forEach(([x,y])=>{
+      const t=document.createElement("div"); t.className="tree";
+      t.style.left=x+"%"; t.style.top=y+"px"; inner.appendChild(t);
+    });
+  }
+  // Flowers scattered
+  for(let f=0;f<12;f++){
+    const fl=document.createElement("div"); fl.className="flower";
+    fl.style.left=(15+f*6)+"%" ; fl.style.top=(40+f*110)+"px"; inner.appendChild(fl);
+  }
+
+  // Route path (SVG uses xPct for x, yPx for y — viewBox maps them directly)
+  const startX = 28, startY = totalH - 25;
+  const pts = [{x: startX, y: startY}].concat(EPISODES.map((_,i)=>{
+    const p = routePosPx(i); return {x:p.xPct, y:p.yPx};
+  }));
   const d = pts.map((p,i)=>(i===0?"M":"L")+p.x+" "+p.y).join(" ");
   $("route-outer").setAttribute("d", d);
   $("route-inner").setAttribute("d", d);
 
-  // トレーナー(スタート地点)
+  // Trainer at start
   const tr=document.createElement("div"); tr.className="trainer"; tr.textContent="🕵️";
-  tr.style.left=MAP_START.x+"%"; tr.style.top=MAP_START.y+"%"; w.appendChild(tr);
+  tr.style.left=startX+"%"; tr.style.top=(startY-10)+"px"; inner.appendChild(tr);
 
-  // 草むら(各事件)
+  // Episode patches
+  let scrollTargetY = startY;
   EPISODES.forEach((ep,i)=>{
     const cleared=!!S.cleared[epId(ep)], unlocked=isUnlocked(i);
-    const pos=routePos(i);
+    const pos=routePosPx(i);
     const patch=document.createElement("div");
     patch.className="patch "+(cleared?"cleared":unlocked?"new":"locked");
-    patch.style.left=pos.x+"%"; patch.style.top=pos.y+"%";
+    patch.style.left=pos.xPct+"%"; patch.style.top=pos.yPx+"px";
     patch.innerHTML='<div class="field2"><span class="mon">'+(unlocked?(cleared?"✅":ep.monster.emoji):"🔒")+'</span></div>'+
-      '<div class="sign">'+(unlocked?ep.location:"？？？")+'</div>';
-    if(unlocked) patch.addEventListener("click", ()=>openStory(ep));
-    w.appendChild(patch);
+      '<div class="sign">'+(unlocked?"EP"+ep.ep+" "+ep.location:"？？？")+'</div>';
+    if(unlocked){
+      patch.addEventListener("click", ()=>openStory(ep));
+      scrollTargetY = pos.yPx; // track last unlocked
+    }
+    inner.appendChild(patch);
   });
+
+  // Auto-scroll so current episode is visible (centered in view)
+  setTimeout(()=>{
+    const visH = wrap.clientHeight;
+    wrap.scrollTop = Math.max(0, scrollTargetY - visH * 0.55);
+  }, 30);
+
+  // バッジ行（EPバッジ + ボスバッジ）
+  const br = $("badge-row"); br.innerHTML="";
+  EPISODES.forEach(ep=>{
+    const earned = !!S.cleared[epId(ep)];
+    const b=document.createElement("div");
+    b.className="ep-badge"+(earned?" earned":"");
+    b.textContent=(earned?"✅":"🔒")+" EP"+ep.ep;
+    br.appendChild(b);
+    // ボスバッジ表示
+    const boss = BOSSES.find(bb=>bb.ep===ep.ep);
+    if(boss){
+      const bossEarned = (S.bossBadges||[]).includes(ep.ep);
+      const bb=document.createElement("div");
+      bb.className="ep-badge"+(bossEarned?" earned":"");
+      bb.style.cssText = bossEarned
+        ? "border-color:#ff88cc;color:#ff88cc;background:rgba(255,130,200,.12);font-size:.8rem"
+        : "border-color:#3a2a3a;color:#4a3a4a;font-size:.8rem";
+      bb.title = boss.name;
+      bb.textContent = bossEarned ? boss.badge : "⚔️";
+      br.appendChild(bb);
+    }
+  });
+
+  // 目標バナー
+  const clearedCount = Object.keys(S.cleared).length;
+  const remain = EPISODES.length - clearedCount;
+  const banner = $("goal-banner");
+  const bossDone = (S.bossBadges||[]).length;
+  if(leagueUnlocked()){
+    banner.classList.add("cleared");
+    $("goal-text").innerHTML = S.leagueClear
+      ? '🏆 <strong>殿堂入り達成！</strong> 真の医療刑事リーグ チャンピオン'
+      : '🏆 全バッジ取得！ <strong>医療刑事リーグ</strong>に挑戦できる！';
+    // リーグ挑戦ボタン
+    let lb = $("btn-league-map");
+    if(!lb){
+      lb = document.createElement("button");
+      lb.id="btn-league-map"; lb.className="btn primary";
+      lb.style.cssText="width:100%;margin-top:10px;font-size:.95rem;";
+      lb.addEventListener("click", openLeagueGate);
+      banner.parentNode.insertBefore(lb, banner.nextSibling);
+    }
+    lb.textContent = S.leagueClear ? "🏆 もう一度リーグへ挑戦" : "⚔️ 医療刑事リーグへ挑戦！";
+    lb.style.display="block";
+  } else {
+    banner.classList.remove("cleared");
+    if(remain===0){
+      $("goal-text").innerHTML = '🎉 全件解決！ ボスバッジ: '+bossDone+'/6 を集めてリーグへ！';
+    } else {
+      $("goal-text").innerHTML = '全件解決で「名探偵」称号獲得！　残り <strong>'+remain+'</strong> 件';
+    }
+    const lb=$("btn-league-map"); if(lb) lb.style.display="none";
+  }
 }
 
 /* ---------- story ---------- */
@@ -543,16 +1094,10 @@ $("btn-start-battle").addEventListener("click", ()=>startBattle(current));
 function hpColor(r){ return r>0.5 ? "var(--hp-green)" : r>0.2 ? "var(--hp-yellow)" : "var(--hp-red)"; }
 
 function startBattle(ep){
+  SFX.enter();
   const eMax = ep.quiz.length * 12;
   const mMax = 30 + (S.stats.focus-1)*8;
-  B = {
-    ep, qIndex:0,
-    eMax, eHp:eMax, eLv: ep.ep+4,
-    mMax, mHp:mMax, mLv:S.level,
-    perfect:true, wrongs:0, done:false,
-    hintUsed:false,
-  };
-  // reset visuals
+  B = { ep, qIndex:0, eMax, eHp:eMax, eLv:ep.ep+4, mMax, mHp:mMax, mLv:S.level, perfect:true, wrongs:0, done:false, hintUsed:false };
   $("e-name").textContent = ep.monster.name;
   $("e-lv").textContent = B.eLv;
   $("m-lv").textContent = B.mLv;
@@ -567,7 +1112,6 @@ function startBattle(ep){
   document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
   hidePanels();
   $("battle").classList.add("show");
-  // 戦闘突入トランジション → 幕が開いてから登場
   battleTransition(()=>{
     msg("やせいの "+ep.monster.name+"が とびだしてきた！", ()=>{
       msg("ツボ刑事は しんだんを はじめた！", showCommands);
@@ -591,7 +1135,6 @@ function setHp(who, ratio){
   if(who==="m") $("m-hpnum").textContent = Math.max(0,Math.round(B.mHp))+"/ "+B.mMax;
 }
 
-/* message box helper: 1文字ずつ表示(文字送り)→タップで先へ。タップ中なら全表示に早送り */
 let tapHandler=null, typeTimer=null, isTyping=false, fullText="", onDone=null;
 const REDUCE = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 function msg(text, cb){
@@ -616,7 +1159,7 @@ function msg(text, cb){
   }
   if(tapHandler) $("b-textbox").removeEventListener("click", tapHandler);
   tapHandler = ()=>{
-    if(isTyping){ // 早送り: 全文表示
+    if(isTyping){
       clearInterval(typeTimer); isTyping=false;
       $("b-text").textContent = fullText;
       if(onDone) $("b-cursor").classList.remove("hidden");
@@ -631,7 +1174,6 @@ function hidePanels(){
   $("b-cta-mini").classList.add("hidden"); $("b-cta").classList.add("hidden");
 }
 
-/* ---------- command menu ---------- */
 function showCommands(){
   hidePanels();
   $("b-textbox").classList.remove("hidden");
@@ -662,13 +1204,11 @@ function doRun(){
   msg("うまく にげきれた！", ()=>{ endBattle(); go("map"); });
 }
 
-/* ---------- move (=quiz choice) select ---------- */
 function showMoves(){
   hidePanels();
   const q=B.ep.quiz[B.qIndex];
   $("b-textbox").classList.remove("hidden");
   $("b-text").innerHTML = "▼ "+q.q;
-  // 選択肢をシャッフル(正解が常に先頭にならないように)
   B.opts = shuffle(q.choices.map((text,i)=>({ text, correct: i===q.answer })));
   const list=$("move-list"); list.innerHTML="";
   B.opts.forEach((o,i)=>{
@@ -690,6 +1230,7 @@ function useMove(i){
   const chosen = B.opts[i].text;
   hidePanels();
   if(correct){
+    SFX.correct();
     const dmg = Math.round(B.eMax / ep.quiz.length) + (S.stats.diagnosis-1)*3;
     msg("ツボ刑事の 『"+chosen+"』！", ()=>{
       flash(); shakeEnemy(); damagePop("e", dmg, true);
@@ -700,11 +1241,11 @@ function useMove(i){
       });
     });
   } else {
+    SFX.wrong();
     B.perfect=false; B.wrongs++;
     const back = 8 + Math.floor(ep.ep*1.5);
     msg("ツボ刑事は 『"+chosen+"』を つかった…", ()=>{
       msg("こうかは いまひとつの ようだ…", ()=>{
-        // enemy counter-attack
         msg(ep.monster.name+"の はんげき！", ()=>{
           flash(); shakeMine(); damagePop("m", back);
           B.mHp = Math.max(0, B.mHp - back);
@@ -714,7 +1255,7 @@ function useMove(i){
               if(B.mHp<=0){ loseBattle(); return; }
               afterTurn();
             });
-            showMiniCTA(ep); // 解説と同時に軽く表示、次のタップで消える
+            showMiniCTA(ep);
           });
         });
       });
@@ -722,7 +1263,6 @@ function useMove(i){
   }
 }
 
-/* 間違い時の軽いCTA: いま挑んでいる筋/ツボを題材に「サロンで学ぼう」を1タップぶん見せる */
 function showMiniCTA(ep){
   const term = Math.random()<0.5 ? ep.muscle.name : ep.acupoint.name;
   const el=$("b-cta-mini");
@@ -735,7 +1275,6 @@ function afterTurn(){
   if(B.eHp<=0){ winBattle(); return; }
   B.qIndex++;
   if(B.qIndex >= B.ep.quiz.length){
-    // ran out of questions but enemy alive: judge by damage done
     if(B.eHp <= B.eMax*0.4) winBattle();
     else { msg(B.ep.monster.name+"は まだ あばれている…", ()=>{ B.qIndex=0; showCommands(); }); }
     return;
@@ -755,26 +1294,112 @@ function damagePop(who, dmg, crit){
 function winBattle(){
   const ep=B.ep;
   $("e-mon").className="mon faint";
+  SFX.victory();
+
+  // ボス戦勝利
+  if(ep.isBoss){
+    msg(ep.monster.name+" を たおした！", ()=>{
+      msg("✨ "+ep.bossRef.badge+" バッジ獲得！", ()=>{
+        endBattle();
+        bossBattleWin(ep.bossRef);
+      });
+    });
+    return;
+  }
+
   msg(ep.monster.name+"を しずめた！", ()=>{
     const firstClear = !S.cleared[epId(ep)];
+    const prevRank = getRank(S.level).name;
     S.cleared[epId(ep)]=true;
     S.dex[epId(ep)]={ muscle:ep.muscle, acupoint:ep.acupoint };
     let xpGain = firstClear?60:20, coinGain=firstClear?30:8;
     if(B.perfect){ xpGain+=20; coinGain+=10; }
     S.coins+=coinGain;
-    msg("ツボ刑事は "+xpGain+" けいけんちを もらった！"+(B.perfect?"(パーフェクト+20)":""), ()=>{
-      animateExp(xpGain, ()=>{
+    msg("ツボ刑事は "+xpGain+" けいけんちを もらった！"+(B.perfect?" ✨パーフェクト！":""), ()=>{
+      animateExp(xpGain, prevRank, ()=>{
         save(); renderHeader();
+        const allCleared = EPISODES.every(e=>!!S.cleared[epId(e)]);
+        const rivalMsg = allCleared ? RIVAL_BY_EP["ep"+EPISODES.length] : (RIVAL_BY_EP["ep"+ep.ep] || null);
         const done = ()=> showBattleCTA(()=>{ endBattle(); go("map"); });
         msg("弱点は 原因筋『"+ep.muscle.name+"』と 経穴『"+ep.acupoint.name+"』だった。", ()=>{
-          msg("📖 図鑑に とうろくした！　🪙+"+coinGain, done);
+          msg("📖 図鑑に とうろくした！　🪙+"+coinGain, ()=>{
+            // ボスチャレンジチェック
+            const boss = firstClear ? BOSSES.find(b=>b.ep===ep.ep) : null;
+            const bossAlreadyDone = boss && (S.bossBadges||[]).includes(ep.ep);
+            if(firstClear && rivalMsg && !boss){
+              endBattle();
+              go("map");
+              setTimeout(()=>showRival(rivalMsg), 300);
+            } else if(boss && !bossAlreadyDone){
+              endBattle();
+              go("map");
+              setTimeout(()=>showBossIntro(boss), 400);
+            } else {
+              done();
+            }
+          });
         });
       });
     });
   });
 }
 
-/* バトル終了時の強めのサロン導線 */
+/* ---------- ボスチャレンジ ---------- */
+function showBossIntro(boss){
+  currentBoss = boss;
+  $("boss-emoji").textContent = boss.emoji;
+  $("boss-name").textContent = boss.name;
+  $("boss-chapter").textContent = boss.chapter;
+  $("boss-msg").textContent = boss.msg;
+  $("boss-overlay").classList.add("show");
+  SFX.enter(); SFX.enter();
+}
+
+$("btn-boss-skip").addEventListener("click", ()=>{
+  $("boss-overlay").classList.remove("show");
+});
+
+$("btn-boss-fight").addEventListener("click", ()=>{
+  $("boss-overlay").classList.remove("show");
+  if(!currentBoss) return;
+  // ボス戦 = マイルストーン周辺のEPからクイズプール生成
+  const bossEpNum = currentBoss.ep;
+  const bossEpObj = EPISODES.find(e=>e.ep===bossEpNum);
+  if(!bossEpObj) return;
+  // ボス用EP（前5件のクリア済みEPのクイズを結合）
+  const poolEps = EPISODES.filter(e=>e.ep>bossEpNum-5&&e.ep<=bossEpNum);
+  const bossQuiz = poolEps.flatMap(e=>e.quiz).slice(0,6);
+  const bossEp = Object.assign({}, bossEpObj, {
+    quiz: bossQuiz,
+    monster: { name: currentBoss.name, emoji: currentBoss.emoji },
+    isBoss: true,
+    bossRef: currentBoss,
+  });
+  startBattle(bossEp);
+});
+
+function bossBattleWin(boss){
+  if(!S.bossBadges) S.bossBadges = [];
+  if(!S.bossBadges.includes(boss.ep)) S.bossBadges.push(boss.ep);
+  save();
+  $("bv-badge").textContent = boss.badge;
+  $("bv-title").textContent = boss.chapter + " クリア！";
+  $("bv-sub").textContent = boss.name + " を倒した！バッジ獲得！";
+  $("boss-victory").classList.add("show");
+  SFX.bonus(); setTimeout(SFX.victory, 400);
+}
+
+$("btn-bv-ok").addEventListener("click", ()=>{
+  $("boss-victory").classList.remove("show");
+  go("map");
+  // EP30ボス（最終）クリアでリーグゲートを自動開放
+  if(leagueUnlocked()){
+    setTimeout(()=>{
+      showRival("全てのバッジを手に入れたな！　これで「医療刑事リーグ」への挑戦資格が解放された。四天王とチャンピオンが待っておる。挑む準備はできておるか？");
+    }, 600);
+  }
+});
+
 function showBattleCTA(onClose){
   const ep=B.ep, wrongs=B.wrongs;
   hidePanels();
@@ -783,11 +1408,11 @@ function showBattleCTA(onClose){
   if(wrongs===0){
     head = "全問正解、お見事！";
     body = "この調子です。<b>"+ep.muscle.name+"</b>や経穴<b>"+ep.acupoint.name+"</b>を"+
-           "“実際の身体で触れて・狙って・変化を出す”実技まで極めるなら、サロンで手技デモとライブ添削が受けられます。";
+           "「実際の身体で触れて・狙って・変化を出す」実技まで極めるなら、サロンで手技デモとライブ添削が受けられます。";
   } else {
     head = wrongs+"問、つまずきましたね。";
     body = "<b>"+ep.muscle.name+"</b>と経穴<b>"+ep.acupoint.name+"</b>を"+
-           "“現場で自信を持って使える”レベルへ。サロンなら手技デモ＋質問し放題で、最短で身につきます。";
+           "「現場で自信を持って使える」レベルへ。サロンなら手技デモ＋質問し放題で、最短で身につきます。";
   }
   $("cta-head").textContent = head;
   $("cta-body").innerHTML = body;
@@ -797,8 +1422,8 @@ function showBattleCTA(onClose){
 }
 $("cta-go").addEventListener("click", openSalon);
 $("cta-skip").addEventListener("click", ()=>{ if(ctaOnClose){ const f=ctaOnClose; ctaOnClose=null; f(); } });
-function animateExp(gain, cb){
-  // fill exp bar, handle level-ups visually
+
+function animateExp(gain, prevRankName, cb){
   let remaining=gain;
   const step=()=>{
     const need = XP_PER_LEVEL - S.xp;
@@ -811,16 +1436,31 @@ function animateExp(gain, cb){
       $("m-exp").style.width="100%";
       setTimeout(()=>{
         S.level++; S.points++;
+        SFX.levelup();
         $("m-exp").style.width="0%";
         $("m-lv").textContent=S.level; B.mLv=S.level;
-        msg("ツボ刑事は レベル "+S.level+" に あがった！(捜査ポイント+1)", ()=>setTimeout(step,10));
+        const newRank = getRank(S.level);
+        const rankUp = newRank.name !== prevRankName;
+        const lvMsg = rankUp
+          ? "ツボ刑事は レベル "+S.level+" に あがった！　称号「"+newRank.name+"」に昇格！(捜査ポイント+1)"
+          : "ツボ刑事は レベル "+S.level+" に あがった！(捜査ポイント+1)";
+        msg(lvMsg, ()=>{
+          if(rankUp){
+            const rivalMsg = RIVAL_BY_RANK[newRank.name];
+            if(rivalMsg && !B.ep){ setTimeout(()=>showRival(rivalMsg), 100); }
+          }
+          setTimeout(step,10);
+        });
+        prevRankName = getRank(S.level).name;
       }, 520);
     }
   };
   step();
 }
+
 function loseBattle(){
   $("m-mon").className="mon mine faint";
+  SFX.wrong();
   msg("ツボ刑事は めのまえが まっくらに なった！", ()=>{
     msg("しかし 経験を つんだ。", ()=> showBattleCTA(()=>{ endBattle(); startBattle(B.ep); }));
   });
@@ -873,10 +1513,29 @@ function renderTrain(){
   });
 }
 
+/* ---------- デイリーログインボーナス ---------- */
+function checkDailyBonus(){
+  const today = new Date().toDateString();
+  const last = localStorage.getItem("tuboLastLogin_v1");
+  if(last === today) return;
+  localStorage.setItem("tuboLastLogin_v1", today);
+  if(Object.keys(S.cleared).length === 0) return; // 初回プレイ前はスキップ
+  const bonus = 15;
+  S.xp += bonus;
+  while(S.xp >= XP_PER_LEVEL){ S.xp -= XP_PER_LEVEL; S.level++; S.points++; }
+  save(); renderHeader();
+  SFX.bonus();
+  setTimeout(()=>showRival("🌅 今日も来たな！　経験値＋"+bonus+"をプレゼントしよう。毎日続けることが、現場での自信に直結するぞ。"), 600);
+}
+
 /* ---------- init ---------- */
 if(EPISODES.length===0){
   $("screen-map").innerHTML='<div class="h">データがありません</div><div class="sub">js/data.js の EPISODES にエピソードを追加してください。</div>';
-} else { renderHeader(); go("map"); }
+} else {
+  renderHeader();
+  go("map");
+  checkDailyBonus();
+}
 if("serviceWorker" in navigator){ window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
 </script>
 </body>
