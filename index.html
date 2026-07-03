@@ -371,10 +371,65 @@
   .nav button .ic { font-size:1.25rem; } .nav button.active { color:#4a9eff; }
 
   @keyframes fade { from{opacity:0} to{opacity:1} }
+
+  /* ===== Firebase ログインUI ===== */
+  #fb-btn { position:fixed; top:10px; right:10px; z-index:200; background:rgba(20,30,45,.92);
+    border:1px solid rgba(74,158,255,.4); border-radius:20px; padding:5px 12px 5px 8px;
+    display:flex; align-items:center; gap:6px; cursor:pointer; font-size:.75rem; color:#cce4ff;
+    font-weight:700; transition:background .2s; }
+  #fb-btn:hover { background:rgba(74,158,255,.2); }
+  #fb-avatar { width:22px; height:22px; border-radius:50%; object-fit:cover; display:none; }
+  #fb-avatar.show { display:block; }
+  #fb-anon { font-size:1rem; }
+
+  /* ログイン促進モーダル */
+  #login-modal { position:absolute; inset:0; z-index:150; display:none; align-items:flex-end;
+    justify-content:center; background:rgba(0,0,0,.65); }
+  #login-modal.show { display:flex; animation:fade .2s; }
+  .lm-card { background:#111d2c; border-radius:20px 20px 0 0; padding:28px 24px 36px;
+    width:100%; max-width:480px; text-align:center; }
+  .lm-icon { font-size:2.8rem; margin-bottom:10px; }
+  .lm-title { font-size:1.15rem; font-weight:900; color:#cce4ff; margin-bottom:6px; }
+  .lm-body { font-size:.82rem; color:#7a9ab8; margin-bottom:22px; line-height:1.6; }
+  .lm-google { display:flex; align-items:center; justify-content:center; gap:10px;
+    background:#fff; color:#222; font-weight:700; font-size:.95rem; border:none;
+    border-radius:12px; padding:13px 24px; width:100%; cursor:pointer; margin-bottom:10px; }
+  .lm-google img { width:20px; height:20px; }
+  .lm-skip { background:none; border:none; color:#4a6a8a; font-size:.8rem; cursor:pointer;
+    padding:6px; text-decoration:underline; }
+  .lm-benefit { display:flex; gap:8px; flex-direction:column; margin-bottom:20px; text-align:left; }
+  .lm-benefit-row { display:flex; align-items:center; gap:8px; font-size:.8rem; color:#8aaac8; }
+  .lm-benefit-icon { font-size:1rem; flex-shrink:0; }
 </style>
 </head>
 <body>
 <div id="app">
+
+  <!-- Firebase ログインボタン（常時表示） -->
+  <button id="fb-btn" onclick="fbLoginOrProfile()">
+    <img id="fb-avatar" src="" alt="">
+    <span id="fb-anon">👤</span>
+    <span id="fb-label">ログイン</span>
+  </button>
+
+  <!-- ログイン促進モーダル -->
+  <div id="login-modal">
+    <div class="lm-card">
+      <div class="lm-icon">☁️</div>
+      <div class="lm-title" id="lm-title">進捗を保存しませんか？</div>
+      <div class="lm-benefit">
+        <div class="lm-benefit-row"><span class="lm-benefit-icon">🔄</span>スマホ・PCどこからでも続きができる</div>
+        <div class="lm-benefit-row"><span class="lm-benefit-icon">🏅</span>バッジ・レベル・図鑑が永久保存される</div>
+        <div class="lm-benefit-row"><span class="lm-benefit-icon">📊</span>学習記録が蓄積されていく</div>
+      </div>
+      <div class="lm-body" id="lm-body">Googleアカウントで1タップでログインできます。</div>
+      <button class="lm-google" onclick="fbGoogleLogin()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+        Googleでログイン・保存する
+      </button>
+      <button class="lm-skip" onclick="closeLmModal()">あとで</button>
+    </div>
+  </div>
 
   <div class="topbar" id="topbar">
     <div class="badge" id="badge-icon">⚔️</div>
@@ -1319,6 +1374,9 @@ function winBattle(){
     const firstClear = !S.cleared[epId(ep)];
     const prevRank = getRank(S.level).name;
     S.cleared[epId(ep)]=true;
+    // ログイン促進（EP3初回クリア時）
+    if(firstClear && ep.ep===3) maybePromptLogin("ep3");
+    else if(firstClear && ep.ep===10) maybePromptLogin("ep10");
     S.dex[epId(ep)]={ muscle:ep.muscle, acupoint:ep.acupoint };
     let xpGain = firstClear?60:20, coinGain=firstClear?30:8;
     if(B.perfect){ xpGain+=20; coinGain+=10; }
@@ -1390,6 +1448,7 @@ function bossBattleWin(boss){
   if(!S.bossBadges) S.bossBadges = [];
   if(!S.bossBadges.includes(boss.ep)) S.bossBadges.push(boss.ep);
   save();
+  maybePromptLogin("boss");
   $("bv-badge").textContent = boss.badge;
   $("bv-title").textContent = boss.chapter + " クリア！";
   $("bv-sub").textContent = boss.name + " を倒した！";
@@ -1548,6 +1607,141 @@ if(EPISODES.length===0){
   checkDailyBonus();
 }
 if("serviceWorker" in navigator){ window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
+</script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+/* ===== Firebase 初期化 ===== */
+firebase.initializeApp({
+  apiKey: "AIzaSyA56QX2yq9YhYpEjnkFdtZVmCei0QcuVhc",
+  authDomain: "tubo-tantei.firebaseapp.com",
+  projectId: "tubo-tantei",
+  storageBucket: "tubo-tantei.firebasestorage.app",
+  messagingSenderId: "477560886893",
+  appId: "1:477560886893:web:04e3f6c01b92c1c10f1164"
+}, "game");
+
+const fbAuth = firebase.app("game").auth();
+const fbDb   = firebase.app("game").firestore();
+let fbUser = null;
+let lmShownThisSession = false;
+
+/* ===== ログインボタンUI更新 ===== */
+function updateFbBtn(user){
+  const btn   = document.getElementById("fb-btn");
+  const avatar= document.getElementById("fb-avatar");
+  const anon  = document.getElementById("fb-anon");
+  const label = document.getElementById("fb-label");
+  if(user){
+    if(user.photoURL){ avatar.src=user.photoURL; avatar.classList.add("show"); anon.style.display="none"; }
+    label.textContent = user.displayName ? user.displayName.split(" ")[0] : "保存済み";
+    btn.title = "ログイン中: " + (user.email||"");
+  } else {
+    avatar.classList.remove("show"); anon.style.display="";
+    label.textContent = "ログイン";
+    btn.title = "Googleでログインして進捗を保存";
+  }
+}
+
+/* ===== Firestore 保存・読込 ===== */
+async function fbSave(){
+  if(!fbUser) return;
+  try {
+    await fbDb.collection("game_users").doc(fbUser.uid).set({
+      displayName: fbUser.displayName || "",
+      email: fbUser.email || "",
+      photoURL: fbUser.photoURL || "",
+      save: JSON.parse(localStorage.getItem("tuboKeijiSave_v3") || "{}"),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch(e){ console.warn("fbSave error", e); }
+}
+
+async function fbLoad(){
+  if(!fbUser) return;
+  try {
+    const doc = await fbDb.collection("game_users").doc(fbUser.uid).get();
+    if(doc.exists && doc.data().save){
+      const remote = doc.data().save;
+      const local  = JSON.parse(localStorage.getItem("tuboKeijiSave_v3") || "{}");
+      // XPが多い方を採用（ゲームが進んでいる方を優先）
+      const merged = (remote.totalXP||0) >= (local.totalXP||0) ? remote : local;
+      localStorage.setItem("tuboKeijiSave_v3", JSON.stringify(merged));
+      // ゲームのS変数を更新
+      if(typeof load === "function"){ Object.assign(S, load()); renderHeader(); renderMap(); }
+    }
+  } catch(e){ console.warn("fbLoad error", e); }
+}
+
+/* ===== Googleログイン ===== */
+async function fbGoogleLogin(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await fbAuth.signInWithPopup(provider);
+    closeLmModal();
+  } catch(e){
+    if(e.code !== "auth/popup-closed-by-user") alert("ログインに失敗しました: " + e.message);
+  }
+}
+
+/* ===== ログアウト・プロフィール ===== */
+function fbLoginOrProfile(){
+  if(fbUser){
+    if(confirm(fbUser.displayName+"さんとしてログイン中\n\nログアウトしますか？")){
+      fbAuth.signOut();
+    }
+  } else {
+    showLmModal("進捗を保存しませんか？");
+  }
+}
+
+/* ===== モーダル表示・非表示 ===== */
+function showLmModal(title, body){
+  document.getElementById("lm-title").textContent = title || "進捗を保存しませんか？";
+  if(body) document.getElementById("lm-body").textContent = body;
+  document.getElementById("login-modal").classList.add("show");
+  lmShownThisSession = true;
+}
+function closeLmModal(){
+  document.getElementById("login-modal").classList.remove("show");
+}
+
+/* ===== 自動促進トリガー ===== */
+// EPクリア・ボスバッジ取得後に呼ぶ
+function maybePromptLogin(trigger){
+  if(fbUser || lmShownThisSession) return;
+  const titles = {
+    ep3:   "3件解決！進捗を保存しませんか？",
+    boss:  "バッジ獲得！記録を残しませんか？",
+    ep10:  "10件解決！ここまでの記録を保存しよう",
+  };
+  setTimeout(()=> showLmModal(titles[trigger] || "進捗を保存しませんか？"), 800);
+}
+
+/* ===== 認証状態監視 ===== */
+fbAuth.onAuthStateChanged(async user => {
+  fbUser = user;
+  updateFbBtn(user);
+  if(user){
+    await fbLoad();
+    await fbSave();
+  }
+});
+
+/* ===== ゲームのsave()をフック（Firebase同期） ===== */
+const _origSave = typeof save === "function" ? save : null;
+if(_origSave){
+  // save()呼び出し後にFirestoreにも保存
+  const _savePatch = function(){
+    _origSave();
+    if(fbUser) fbSave();
+  };
+  // グローバルsaveを上書き
+  window.save = _savePatch;
+}
 </script>
 </body>
 </html>
