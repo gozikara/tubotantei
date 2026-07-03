@@ -51,21 +51,41 @@
   .h { font-size: 1.1rem; font-weight: 900; color: #ffc832; margin-bottom: 4px; }
   .sub { font-size: .78rem; color: #8899aa; margin-bottom: 16px; line-height: 1.6; }
 
-  /* ===== Map ===== */
-  .map-wrap { position: relative; width: 100%; aspect-ratio: 3/4; max-height: 56vh; margin: 0 auto 16px;
-    border: 1px solid rgba(74,158,255,.3); border-radius: 16px;
-    background: radial-gradient(80% 50% at 50% 8%, rgba(74,158,255,.10), transparent 60%), linear-gradient(180deg,#10203a,#0b1424); overflow: hidden; }
-  .body-svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .5; }
-  .pin { position: absolute; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
-  .pin .dot { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 1.4rem;
-    border: 2px solid #ffc832; background: radial-gradient(circle at 50% 35%,#24466f,#0e1d33); transition: transform .12s; }
-  .pin:active .dot { transform: scale(.9); }
-  .pin.new .dot { animation: pulse 1.8s infinite; }
-  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(255,200,50,.5)} 70%{box-shadow:0 0 0 12px rgba(255,200,50,0)} 100%{box-shadow:0 0 0 0 rgba(255,200,50,0)} }
-  .pin.cleared .dot { border-color: #4aff7f; }
-  .pin.locked .dot { border-color: rgba(255,255,255,.2); opacity: .5; }
-  .pin .lbl { font-size: .6rem; font-weight: 800; background: rgba(6,14,26,.85); padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
-  .pin.locked .lbl { color: #8899aa; }
+  /* ===== Map (Pokémon風の見下ろしルート) ===== */
+  .map-wrap { position: relative; width: 100%; aspect-ratio: 3/4; max-height: 58vh; margin: 0 auto 16px;
+    border: 4px solid #2c6c28; border-radius: 8px; overflow: hidden; image-rendering: pixelated;
+    background-color: #7ec84e;
+    background-image:
+      repeating-conic-gradient(#7ec84e 0 25%, #75c045 0 50%);
+    background-size: 34px 34px;
+  }
+  .route-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+  .route-svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .tree { position: absolute; transform: translate(-50%,-50%); width: 32px; height: 38px; z-index: 2; pointer-events: none; }
+  .tree::before { content:""; position:absolute; top:0; left:0; width:32px; height:28px; border-radius:9px 9px 7px 7px;
+    background: radial-gradient(circle at 35% 30%, #4faa3e, #357f2a); border:3px solid #245a1c; }
+  .tree::after { content:""; position:absolute; bottom:0; left:12px; width:8px; height:12px; background:#7a4a26; border:2px solid #4e2f18; border-top:none; }
+  .flower { position:absolute; transform:translate(-50%,-50%); width:8px; height:8px; border-radius:50%; z-index:1;
+    box-shadow: 0 0 0 2px #ffd23a inset; background:#fff6c8; }
+
+  .trainer { position: absolute; transform: translate(-50%,-60%); font-size: 2rem; z-index: 4;
+    filter: drop-shadow(1px 2px 2px rgba(0,0,0,.4)); pointer-events: none; }
+
+  .patch { position: absolute; transform: translate(-50%,-50%); z-index: 3;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; width: 82px; }
+  .patch .field2 { width: 72px; height: 48px; border-radius: 5px; display: grid; place-items: center; position: relative;
+    background: repeating-linear-gradient(92deg, #2f7a26 0 5px, #3d9130 5px 10px);
+    border: 3px solid #1f5418; box-shadow: 0 3px 0 rgba(0,0,0,.25); transition: transform .12s; }
+  .patch:active .field2 { transform: scale(.94); }
+  .patch .field2 .mon { font-size: 1.9rem; line-height: 1; filter: drop-shadow(1px 2px 2px rgba(0,0,0,.4)); }
+  .patch.new .field2 { border-color: #ffd23a; animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 3px 0 rgba(0,0,0,.25), 0 0 0 0 rgba(255,210,58,.6)} 70%{box-shadow:0 3px 0 rgba(0,0,0,.25), 0 0 0 12px rgba(255,210,58,0)} 100%{box-shadow:0 3px 0 rgba(0,0,0,.25), 0 0 0 0 rgba(255,210,58,0)} }
+  .patch.cleared .field2 { border-color: #ffffff; }
+  .patch.locked .field2 { filter: grayscale(.5) brightness(.72); border-color: #4a5a44; }
+  .patch .sign { display: inline-block; background: linear-gradient(#c99a5a,#b9863f); color: #3a2410;
+    border: 2px solid #6f4a22; border-radius: 3px; font-size: .62rem; font-weight: 900; padding: 2px 8px;
+    white-space: nowrap; box-shadow: 0 2px 0 #6f4a22; }
+  .patch.locked .sign { color: #5a4a34; }
 
   /* ===== Story ===== */
   .patient-tag { display:inline-flex; align-items:center; gap:6px; font-size:.74rem; color:#ffc832;
@@ -225,16 +245,13 @@
   <!-- MAP -->
   <div class="screen" id="screen-map">
     <div class="h">🗺 事件マップ</div>
-    <div class="sub">光るピンをタップして捜査開始。弱点の経穴(ツボ)を見抜いて症状モンスターを鎮めろ。</div>
+    <div class="sub">光る草むらをタップして捜査開始。弱点の経穴(ツボ)を見抜いて症状モンスターを鎮めろ。</div>
     <div class="map-wrap" id="map-wrap">
-      <svg class="body-svg" viewBox="0 0 100 133" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <g fill="none" stroke="#4a9eff" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round">
-          <circle cx="50" cy="15" r="8"/>
-          <path d="M43 22 Q50 27 57 22 L64 34 L58 40 L58 70 Q50 74 42 70 L42 40 L36 34 Z"/>
-          <path d="M42 40 L30 44 L26 62"/><path d="M58 40 L70 44 L74 62"/>
-          <path d="M46 70 L42 108 L44 120"/><path d="M54 70 L58 108 L56 120"/>
-        </g>
+      <svg class="route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path id="route-outer" stroke="#b98a4e" stroke-width="9" vector-effect="non-scaling-stroke"/>
+        <path id="route-inner" stroke="#e0c088" stroke-width="5" vector-effect="non-scaling-stroke"/>
       </svg>
+      <!-- 木・花・草むら・トレーナーは renderMap() が配置 -->
     </div>
     <div class="sub" style="text-align:center">解決するたびに図鑑へツボ・筋肉が登録され、経験値でレベルが上がります。</div>
   </div>
@@ -383,21 +400,44 @@ function renderHeader(){
   $("coin").textContent = "🪙 "+S.coins;
 }
 
-/* ---------- map ---------- */
+/* ---------- map (見下ろしルート) ---------- */
 function isUnlocked(i){ return i===0 ? true : !!S.cleared[epId(EPISODES[i-1])]; }
+// ルート上の各事件の座標(%)。下から上へ、左右に振りながら進む
+function routePos(i){ return { x: i%2===0 ? 32 : 68, y: 74 - i*22 }; }
+const MAP_START = { x: 32, y: 92 };
+// 固定配置の木と花(装飾)
+const MAP_TREES = [ [8,12],[20,8],[50,6],[80,10],[92,20],[10,44],[90,48],[6,72],[50,90],[88,80],[16,96],[80,96] ];
+const MAP_FLOWERS = [ [45,40],[58,66],[24,58],[74,32],[40,82],[62,16] ];
+
 function renderMap(){
   const w = $("map-wrap");
-  w.querySelectorAll(".pin").forEach(p=>p.remove());
+  w.querySelectorAll(".patch,.tree,.flower,.trainer").forEach(el=>el.remove());
+
+  // 装飾: 木と花
+  MAP_TREES.forEach(([x,y])=>{ const t=document.createElement("div"); t.className="tree"; t.style.left=x+"%"; t.style.top=y+"%"; w.appendChild(t); });
+  MAP_FLOWERS.forEach(([x,y])=>{ const f=document.createElement("div"); f.className="flower"; f.style.left=x+"%"; f.style.top=y+"%"; w.appendChild(f); });
+
+  // ルートの道(スタート→各事件を順につなぐ)
+  const pts = [MAP_START].concat(EPISODES.map((_,i)=>routePos(i)));
+  const d = pts.map((p,i)=>(i===0?"M":"L")+p.x+" "+p.y).join(" ");
+  $("route-outer").setAttribute("d", d);
+  $("route-inner").setAttribute("d", d);
+
+  // トレーナー(スタート地点)
+  const tr=document.createElement("div"); tr.className="trainer"; tr.textContent="🕵️";
+  tr.style.left=MAP_START.x+"%"; tr.style.top=MAP_START.y+"%"; w.appendChild(tr);
+
+  // 草むら(各事件)
   EPISODES.forEach((ep,i)=>{
     const cleared=!!S.cleared[epId(ep)], unlocked=isUnlocked(i);
-    const pos=ep.mapPos||{x:50,y:20+i*15};
-    const pin=document.createElement("div");
-    pin.className="pin "+(cleared?"cleared":unlocked?"new":"locked");
-    pin.style.left=pos.x+"%"; pin.style.top=pos.y+"%";
-    pin.innerHTML='<div class="dot">'+(unlocked?(cleared?"✅":ep.monster.emoji):"🔒")+'</div>'+
-      '<div class="lbl">'+(unlocked?ep.location:"？？？")+'</div>';
-    if(unlocked) pin.addEventListener("click", ()=>openStory(ep));
-    w.appendChild(pin);
+    const pos=routePos(i);
+    const patch=document.createElement("div");
+    patch.className="patch "+(cleared?"cleared":unlocked?"new":"locked");
+    patch.style.left=pos.x+"%"; patch.style.top=pos.y+"%";
+    patch.innerHTML='<div class="field2"><span class="mon">'+(unlocked?(cleared?"✅":ep.monster.emoji):"🔒")+'</span></div>'+
+      '<div class="sign">'+(unlocked?ep.location:"？？？")+'</div>';
+    if(unlocked) patch.addEventListener("click", ()=>openStory(ep));
+    w.appendChild(patch);
   });
 }
 
