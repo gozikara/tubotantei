@@ -212,7 +212,8 @@
   .bv-badge { font-size:4rem; margin:16px 0; animation:popIn .5s cubic-bezier(.36,.07,.19,.97); }
   @keyframes popIn { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
   .bv-title { font-size:1.4rem; font-weight:900; color:#ffc832; margin-bottom:6px; }
-  .bv-sub { font-size:.82rem; color:#8899aa; margin-bottom:24px; }
+  .bv-sub { font-size:.82rem; color:#8899aa; margin-bottom:10px; }
+  .bv-win-msg { font-size:.8rem; color:#c8a0b0; font-style:italic; margin:0 16px 20px; line-height:1.5; text-align:center; }
 
   /* ===== Battle ===== */
   #battle { position: absolute; inset: 0; z-index: 60; display: none; flex-direction: column; background:#000; }
@@ -518,10 +519,10 @@
   <div id="league-gate">
     <div class="lg-rays">✨</div>
     <div class="lg-trophy">🏆</div>
-    <div class="lg-title">医療刑事リーグ</div>
-    <div class="lg-sub">全バッジ取得者のみ挑戦できる最終試練</div>
+    <div class="lg-title">セラピスト最終試練</div>
+    <div class="lg-sub">全流派バッジ取得者のみ挑戦できる頂上決戦</div>
     <div class="lg-cond" id="lg-cond">
-      四天王４人 → チャンピオン を連続突破せよ<br>
+      達人４人 → 伝説のセラピスト を連続突破せよ<br>
       各関門：5問中4問以上正解でクリア<br>
       <strong style="color:#ff6666">失敗すると第1関門に戻る（ノーコンティニュー）</strong>
     </div>
@@ -562,17 +563,17 @@
   <!-- HALL OF FAME -->
   <div id="league-hof">
     <div class="hof-logo">🏆</div>
-    <div class="hof-title">殿堂入り！</div>
-    <div class="hof-sub">医療刑事リーグ チャンピオン</div>
+    <div class="hof-title">伝説のセラピスト！</div>
+    <div class="hof-sub">最終試練 チャンピオン認定</div>
     <div class="hof-card">
-      <div class="hof-row"><span class="hof-label">刑事名</span><span class="hof-val" id="hof-name">ツボ刑事</span></div>
+      <div class="hof-row"><span class="hof-label">セラピスト名</span><span class="hof-val" id="hof-name">見習いセラピスト</span></div>
       <div class="hof-row"><span class="hof-label">レベル</span><span class="hof-val" id="hof-lv">Lv.1</span></div>
       <div class="hof-row"><span class="hof-label">正答率</span><span class="hof-val" id="hof-acc">--%</span></div>
       <div class="hof-row"><span class="hof-label">総問数</span><span class="hof-val" id="hof-total">0問</span></div>
       <div class="hof-badges" id="hof-badges"></div>
     </div>
     <div class="hof-flame">🔥</div>
-    <div style="color:#6888a8;font-size:.78rem;margin:8px 0 20px">この記録は永遠に刻まれた</div>
+    <div style="color:#6888a8;font-size:.78rem;margin:8px 0 20px">この記録は永遠に刻まれた。あとは自分のサロンを開くだけだ</div>
     <button class="btn primary" id="btn-hof-ok">マップへもどる</button>
   </div>
 
@@ -595,6 +596,7 @@
     <div class="bv-badge" id="bv-badge">🎖️</div>
     <div class="bv-title" id="bv-title">第1章クリア！</div>
     <div class="bv-sub" id="bv-sub">バッジを手に入れた！</div>
+    <div class="bv-win-msg" id="bv-win-msg"></div>
     <button class="btn primary" id="btn-bv-ok">マップへもどる</button>
   </div>
 
@@ -679,28 +681,34 @@ const RIVAL_BY_RANK = {
 /* ===== ボスデータ ===== */
 const BOSS_EPS = [5, 10, 15, 20, 25, 30];
 const BOSSES = [
-  { ep:5,  name:'ヤブ医師ガンバ',         emoji:'🩻', badge:'🎖️',  chapter:'第1章ボス',
-    msg:'「フハハ！EP5まで来たか。だが、俺の罠クイズで終わりだ！」' },
-  { ep:10, name:'エセカイロ師 ダキタ',     emoji:'🦴', badge:'🏅',  chapter:'第2章ボス',
-    msg:'「10件解決？上出来だ。だがここからは次元が違う…覚悟しろ！」' },
-  { ep:15, name:'誤診の名人・ドクターX',   emoji:'🎭', badge:'⭐',  chapter:'第3章ボス',
-    msg:'「ここまで来た者を俺は見たことがない。お前が本物かどうか、試してやろう。」' },
-  { ep:20, name:'骸骨博士の弟子 コツコ',  emoji:'💀', badge:'🌟',  chapter:'第4章ボス',
-    msg:'「師匠の骸骨博士から言われておる。"真の刑事が来たら止めよ"と…！」' },
-  { ep:25, name:'シンジケート幹部 クロウ', emoji:'🦹', badge:'💎',  chapter:'第5章ボス',
-    msg:'「シンジケートに弓を引くとは胆が据わっておるな。全力でつぶしてやる！」' },
-  { ep:30, name:'ヤブ医師シンジケートのボス', emoji:'👑', badge:'🏆',  chapter:'最終ボス',
-    msg:'「ついに辿り着いたか…真の名探偵よ。俺を倒せれば、お前は本物だ！」' },
+  { ep:5,  name:'迷子の施術家 ユウタ',        emoji:'🤷', badge:'🎖️',  chapter:'第1章ボス',
+    winMsg:'…そんなに知識って大事なんすか。ちょっと勉強してみようかな',
+    msg:'「え、細かいこと考えなくても強く押せば喜ぶじゃないですか」' },
+  { ep:10, name:'SNSカリスマ セラピスト・ハナ', emoji:'📱', badge:'🏅',  chapter:'第2章ボス',
+    winMsg:'…エビデンスって、そんなに大事なんだ。フォロワーに謝らなきゃ',
+    msg:'「私のメソッド、フォロワーさんみんなに好評なんだけど？論文とか関係なくない？」' },
+  { ep:15, name:'鉄の指を持つ男 剛田 修',      emoji:'💪', badge:'⭐',  chapter:'第3章ボス',
+    winMsg:'…なるほど。経験に知識が加われば、もっと遠くへ行けるか。認めよう',
+    msg:'「教科書通りにやって何が面白い。30年の経験に勝る教科書はない」' },
+  { ep:20, name:'骸骨博士 ドクター・オステオ',  emoji:'💀', badge:'🌟',  chapter:'第4章ボス',
+    winMsg:'…完璧だ。君の知識は本物だ。だが現場では患者に伝える言葉も必要だぞ',
+    msg:'「起始・停止・支配神経を言えない者は施術する資格がない！」' },
+  { ep:25, name:'フランチャイズ帝王 黒川 龍一', emoji:'💼', badge:'💎',  chapter:'第5章ボス',
+    winMsg:'…本物の技術と知識か。私が忘れていたものだ。だがこの業界、それだけじゃ生き残れないぞ',
+    msg:'「君みたいな個人サロンが私のチェーンに勝てると思ってるの？知識より集客力だよ」' },
+  { ep:30, name:'伝説の廃業者 白銀 蒼',        emoji:'👑', badge:'🏆',  chapter:'最終ボス',
+    winMsg:'…まだ信じられるのか、この業界を。ならば君が証明してみせろ。本物のセラピストが報われる未来を',
+    msg:'「君も私と同じ道を歩むことになる。本物であるほど、この業界では孤独になっていくんだ」' },
 ];
 let currentBoss = null;
 
 /* ===== ポケモンリーグ ===== */
 const LEAGUE_STAGES = [
-  { name:"第1関門", enemy:"基礎解剖の番人 アナトミウス", emoji:"🧬", epRange:[1,5],  passScore:4, msg:"「筋肉の起始・停止も怪しいようでは話にならん！」" },
-  { name:"第2関門", enemy:"病態推論の番人 パソロジア",   emoji:"🔬", epRange:[6,12], passScore:4, msg:"「症状から原因を絞れるか？論理の試練じゃ！」" },
-  { name:"第3関門", enemy:"臨床判断の番人 クリニカル",   emoji:"🩺", epRange:[13,20],passScore:4, msg:"「経穴の取穴を間違えれば患者が苦しむだけじゃ！」" },
-  { name:"第4関門", enemy:"緊急対応の番人 エマージェント",emoji:"🚨", epRange:[21,28],passScore:4, msg:"「刑事なら、どんな症例にも即座に答えを出せ！」" },
-  { name:"チャンピオン戦", enemy:"骸骨博士 THE CHAMPION",  emoji:"💀", epRange:[1,30], passScore:4, msg:"「30件の事件を解決した君を、私が最後に試そう。全力でこい！」" },
+  { name:"第1関門", enemy:"慢性痛の達人 センシュウ", emoji:"🦴", epRange:[1,8],  passScore:4, msg:"「慢性腰痛・肩こりの深層を読めるか？表面を触るだけでは通れん」" },
+  { name:"第2関門", enemy:"スポーツ障害の達人 アスリカ", emoji:"⚡", epRange:[6,15], passScore:4, msg:"「捻挫か骨折か、肉離れかオーバーユースか。その判断が患者の未来を変える」" },
+  { name:"第3関門", enemy:"禁忌判断の達人 ガーディアン", emoji:"⚠️", epRange:[11,22],passScore:4, msg:"「施術すべきか、病院へ送るか。この判断を誤れば、君は患者を傷つける」" },
+  { name:"第4関門", enemy:"カウンセリングの達人 コトバ", emoji:"🤝", epRange:[16,30],passScore:4, msg:"「患者の言葉の奥に何がある？説明と同意なき施術は、信頼を壊すだけだ」" },
+  { name:"チャンピオン戦", enemy:"伝説のセラピスト 白石 蓮", emoji:"✨", epRange:[1,30], passScore:4, msg:"「30もの症例を乗り越えてきたか…。最後の試練、私が直接見届けよう」" },
 ];
 
 let L = { stage:0, qIndex:0, answers:[], stageScores:[], totalQ:0, totalCorrect:0 };
@@ -1037,8 +1045,8 @@ function renderMap(){
   if(leagueUnlocked()){
     banner.classList.add("cleared");
     $("goal-text").innerHTML = S.leagueClear
-      ? '🏆 <strong>殿堂入り達成！</strong> 真の医療刑事リーグ チャンピオン'
-      : '🏆 全バッジ取得！ <strong>医療刑事リーグ</strong>に挑戦できる！';
+      ? '🏆 <strong>伝説のセラピスト達成！</strong> 最終試練 チャンピオン認定'
+      : '🏆 全流派バッジ取得！ <strong>最終試練</strong>に挑戦できる！';
     // リーグ挑戦ボタン
     let lb = $("btn-league-map");
     if(!lb){
@@ -1048,14 +1056,14 @@ function renderMap(){
       lb.addEventListener("click", openLeagueGate);
       banner.parentNode.insertBefore(lb, banner.nextSibling);
     }
-    lb.textContent = S.leagueClear ? "🏆 もう一度リーグへ挑戦" : "⚔️ 医療刑事リーグへ挑戦！";
+    lb.textContent = S.leagueClear ? "🏆 もう一度最終試練へ挑戦" : "⚔️ セラピスト最終試練へ挑戦！";
     lb.style.display="block";
   } else {
     banner.classList.remove("cleared");
     if(remain===0){
-      $("goal-text").innerHTML = '🎉 全件解決！ ボスバッジ: '+bossDone+'/6 を集めてリーグへ！';
+      $("goal-text").innerHTML = '🎉 全件解決！ 流派バッジ: '+bossDone+'/6 を集めて最終試練へ！';
     } else {
-      $("goal-text").innerHTML = '全件解決で「名探偵」称号獲得！　残り <strong>'+remain+'</strong> 件';
+      $("goal-text").innerHTML = '全件解決で「伝説のセラピスト」称号獲得！　残り <strong>'+remain+'</strong> 件';
     }
     const lb=$("btn-league-map"); if(lb) lb.style.display="none";
   }
@@ -1384,7 +1392,10 @@ function bossBattleWin(boss){
   save();
   $("bv-badge").textContent = boss.badge;
   $("bv-title").textContent = boss.chapter + " クリア！";
-  $("bv-sub").textContent = boss.name + " を倒した！バッジ獲得！";
+  $("bv-sub").textContent = boss.name + " を倒した！";
+  const winMsgEl = $("bv-win-msg");
+  if(boss.winMsg){ winMsgEl.textContent = '「'+boss.winMsg+'」'; winMsgEl.style.display="block"; }
+  else { winMsgEl.style.display="none"; }
   $("boss-victory").classList.add("show");
   SFX.bonus(); setTimeout(SFX.victory, 400);
 }
@@ -1395,7 +1406,7 @@ $("btn-bv-ok").addEventListener("click", ()=>{
   // EP30ボス（最終）クリアでリーグゲートを自動開放
   if(leagueUnlocked()){
     setTimeout(()=>{
-      showRival("全てのバッジを手に入れたな！　これで「医療刑事リーグ」への挑戦資格が解放された。四天王とチャンピオンが待っておる。挑む準備はできておるか？");
+      showRival("全ての流派バッジを手に入れたな！　これで「セラピスト最終試練」への挑戦資格が解放された。慢性痛・スポーツ障害・禁忌判断・カウンセリングの達人、そして伝説のセラピストが待っておる。挑む準備はできておるか？");
     }, 600);
   }
 });
