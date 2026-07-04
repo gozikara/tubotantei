@@ -238,6 +238,10 @@
   }
   .field::after { content:""; position:absolute; left:0; right:0; bottom:0; height:46%;
     background: linear-gradient(180deg, #b8e070 0%, #98c850 40%, #86bc44 100%); }
+  /* ボス戦フィールド：不穏な夕暮れ */
+  .field.boss-field { background: linear-gradient(180deg, #2a1035 0%, #55204a 42%, #8a3555 55%, #b04848 100%); }
+  .field.boss-field::after { background: linear-gradient(180deg, #4a3050 0%, #382540 40%, #2a1c30 100%); }
+  .field.boss-field .mon { filter: drop-shadow(0 0 14px rgba(255,60,140,.8)); }
   .plate { position: absolute; background: var(--panel); color: var(--ink);
     border: 3px solid var(--frame); box-shadow: inset 0 0 0 2px #fff, 2px 3px 0 rgba(0,0,0,.25);
     padding: 6px 12px 8px; z-index: 3; }
@@ -1288,9 +1292,10 @@ function hpColor(r){ return r>0.5 ? "var(--hp-green)" : r>0.2 ? "var(--hp-yellow
 
 function startBattle(ep){
   SFX.enter();
-  const eMax = ep.quiz.length * 12;
+  const isBoss = !!ep.isBoss;
+  const eMax = Math.round(ep.quiz.length * 12 * (isBoss?1.5:1));   // ボスはHP1.5倍
   const mMax = 30 + (S.stats.focus-1)*8;
-  B = { ep, qIndex:0, eMax, eHp:eMax, eLv:ep.ep+4, mMax, mHp:mMax, mLv:S.level, perfect:true, wrongs:0, done:false, hintUsed:false };
+  B = { ep, qIndex:0, eMax, eHp:eMax, eLv:ep.ep+4+(isBoss?8:0), mMax, mHp:mMax, mLv:S.level, perfect:true, wrongs:0, done:false, hintUsed:false };
   $("e-name").textContent = ep.monster.name;
   $("e-lv").textContent = B.eLv;
   $("m-lv").textContent = B.mLv;
@@ -1305,10 +1310,19 @@ function startBattle(ep){
   document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
   hidePanels();
   $("battle").classList.add("show");
+  $("field").classList.toggle("boss-field", isBoss);
   battleTransition(()=>{
-    msg("やせいの "+ep.monster.name+"が とびだしてきた！", ()=>{
-      msg("ツボ刑事は しんだんを はじめた！", showCommands);
-    });
+    if(isBoss){
+      msg("⚡ "+ep.monster.name+"が たちはだかった！", ()=>{
+        msg(ep.bossRef ? ep.bossRef.msg : "「勝負だ！」", ()=>{
+          msg("ツボ刑事は しんけんな まなざしで かまえた！", showCommands);
+        });
+      });
+    } else {
+      msg("やせいの "+ep.monster.name+"が とびだしてきた！", ()=>{
+        msg("ツボ刑事は しんだんを はじめた！", showCommands);
+      });
+    }
   });
 }
 
@@ -1489,12 +1503,20 @@ function winBattle(){
   $("e-mon").className="mon faint";
   SFX.victory();
 
-  // ボス戦勝利
+  // ボス戦勝利（初回はXP+120・コイン+60の大型報酬）
   if(ep.isBoss){
+    const firstBoss = !(S.bossBadges||[]).includes(ep.bossRef.ep);
+    const bXp = firstBoss?120:30, bCoin = firstBoss?60:10;
     msg(ep.monster.name+" を たおした！", ()=>{
-      msg("✨ "+ep.bossRef.badge+" バッジ獲得！", ()=>{
-        endBattle();
-        bossBattleWin(ep.bossRef);
+      msg("ツボ刑事は "+bXp+" けいけんちを もらった！ 🪙+"+bCoin, ()=>{
+        S.coins += bCoin;
+        S.xp += bXp;
+        while(S.xp >= XP_PER_LEVEL){ S.xp -= XP_PER_LEVEL; S.level++; S.points++; }
+        save(); renderHeader();
+        msg("✨ "+ep.bossRef.badge+" バッジ獲得！", ()=>{
+          endBattle();
+          bossBattleWin(ep.bossRef, bXp, bCoin);
+        });
       });
     });
     return;
@@ -1562,9 +1584,9 @@ $("btn-boss-fight").addEventListener("click", ()=>{
   const bossEpNum = currentBoss.ep;
   const bossEpObj = EPISODES.find(e=>e.ep===bossEpNum);
   if(!bossEpObj) return;
-  // ボス用EP（前5件のクリア済みEPのクイズを結合）
+  // ボス用EP（前5件のクリア済みEPのクイズからランダム6問）
   const poolEps = EPISODES.filter(e=>e.ep>bossEpNum-5&&e.ep<=bossEpNum);
-  const bossQuiz = poolEps.flatMap(e=>e.quiz).slice(0,6);
+  const bossQuiz = fcShuffle(poolEps.flatMap(e=>e.quiz)).slice(0,6);
   const bossEp = Object.assign({}, bossEpObj, {
     quiz: bossQuiz,
     monster: { name: currentBoss.name, emoji: currentBoss.emoji },
@@ -1574,14 +1596,14 @@ $("btn-boss-fight").addEventListener("click", ()=>{
   startBattle(bossEp);
 });
 
-function bossBattleWin(boss){
+function bossBattleWin(boss, bXp, bCoin){
   if(!S.bossBadges) S.bossBadges = [];
   if(!S.bossBadges.includes(boss.ep)) S.bossBadges.push(boss.ep);
   save();
   maybePromptLogin("boss");
   $("bv-badge").textContent = boss.badge;
   $("bv-title").textContent = boss.chapter + " クリア！";
-  $("bv-sub").textContent = boss.name + " を倒した！";
+  $("bv-sub").textContent = boss.name + " を倒した！"+(bXp?"　⚡XP+"+bXp+"　🪙+"+bCoin:"");
   const winMsgEl = $("bv-win-msg");
   if(boss.winMsg){ winMsgEl.textContent = '「'+boss.winMsg+'」'; winMsgEl.style.display="block"; }
   else { winMsgEl.style.display="none"; }
