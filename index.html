@@ -386,6 +386,41 @@
 
   @keyframes fade { from{opacity:0} to{opacity:1} }
 
+  /* ===== 暗記カード（フラッシュカード） ===== */
+  .flash-filters { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+  .fc-chip { background:rgba(255,255,255,.05); border:1px solid #2a3a4a; border-radius:16px;
+    color:#8899aa; font-size:.75rem; font-weight:700; padding:6px 12px; cursor:pointer; font-family:inherit; }
+  .fc-chip.active { background:rgba(74,158,255,.18); border-color:#4a9eff; color:#cce4ff; }
+  .fc-progress { display:flex; justify-content:space-between; align-items:center; font-size:.72rem;
+    color:#6888a8; margin-bottom:8px; }
+  .fc-bar { height:6px; background:#1a2634; border-radius:3px; overflow:hidden; margin-bottom:14px; }
+  .fc-bar i { display:block; height:100%; background:linear-gradient(90deg,#4a9eff,#66ccff); border-radius:3px; transition:width .3s; }
+  .fc-card { background:linear-gradient(160deg,#16222f,#0f1a26); border:2px solid #2a3f55; border-radius:16px;
+    padding:26px 20px; min-height:230px; display:flex; flex-direction:column; justify-content:center;
+    text-align:center; cursor:pointer; animation:fade .25s; position:relative; }
+  .fc-card.flipped { border-color:#4a9eff; }
+  .fc-cat { position:absolute; top:12px; left:14px; font-size:.68rem; color:#5a7a9a; font-weight:700; }
+  .fc-ep { position:absolute; top:12px; right:14px; font-size:.68rem; color:#5a7a9a; }
+  .fc-q { font-size:1.05rem; font-weight:800; color:#dce8f4; line-height:1.6; }
+  .fc-a { font-size:.88rem; color:#9fc4e8; line-height:1.7; text-align:left; white-space:pre-line; }
+  .fc-tap { margin-top:16px; font-size:.7rem; color:#4a6a8a; }
+  .fc-btns { display:flex; gap:10px; margin-top:14px; }
+  .fc-btns button { flex:1; border:none; border-radius:12px; padding:14px 8px; font-size:.9rem;
+    font-weight:800; cursor:pointer; font-family:inherit; }
+  .fc-know { background:linear-gradient(#3ec46d,#2a9a50); color:#fff; }
+  .fc-again { background:linear-gradient(#e05555,#b23a3a); color:#fff; }
+  .fc-salon-cta { margin-top:12px; background:rgba(255,200,50,.08); border:1px solid rgba(255,200,50,.4);
+    border-radius:12px; padding:12px 14px; text-align:left; animation:fade .3s; }
+  .fc-salon-cta .t { font-size:.78rem; font-weight:800; color:#ffc832; margin-bottom:4px; }
+  .fc-salon-cta .b { font-size:.72rem; color:#b8a878; line-height:1.5; margin-bottom:8px; }
+  .fc-salon-btn { display:block; width:100%; background:linear-gradient(#ffc832,#e0a020); color:#2a1800;
+    border:none; border-radius:9px; padding:10px; font-size:.82rem; font-weight:900; cursor:pointer; font-family:inherit; }
+  .fc-done { text-align:center; padding:36px 16px; animation:fade .3s; }
+  .fc-done .big { font-size:3rem; margin-bottom:10px; }
+  .fc-done .t { font-size:1.15rem; font-weight:900; color:#ffc832; margin-bottom:6px; }
+  .fc-done .s { font-size:.8rem; color:#7a9ab8; margin-bottom:20px; line-height:1.6; }
+  .fc-empty { text-align:center; padding:40px 16px; color:#6888a8; font-size:.82rem; line-height:1.8; }
+
   /* ===== Firebase ログインUI ===== */
   #fb-btn { position:fixed; top:10px; right:10px; z-index:200; background:rgba(20,30,45,.92);
     border:1px solid rgba(74,158,255,.4); border-radius:20px; padding:5px 12px 5px 8px;
@@ -502,6 +537,19 @@
     </div>
     <div class="stat-card" id="t-stats"></div>
     <div class="sub" style="text-align:center">「診断眼」が高いほど技の威力が上がり、「集中力」が高いほど刑事の体力(耐久)が増える。</div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div class="screen hidden" id="screen-flash">
+    <div class="h">🃏 暗記カード</div>
+    <div class="sub">解決した事件の筋肉・ツボを反復で暗記する。<span id="flash-stat"></span></div>
+    <div class="flash-filters">
+      <button class="fc-chip active" data-f="all">すべて</button>
+      <button class="fc-chip" data-f="muscle">💪 筋肉</button>
+      <button class="fc-chip" data-f="acu">👉 ツボ</button>
+      <button class="fc-chip" data-f="weak">🔥 苦手だけ</button>
+    </div>
+    <div id="fc-area"></div>
   </div>
 
   <!-- BATTLE -->
@@ -673,6 +721,7 @@
   <!-- NAV -->
   <div class="nav" id="nav">
     <button data-scr="map" class="active"><span class="ic">🗺</span>マップ</button>
+    <button data-scr="flash"><span class="ic">🃏</span>暗記</button>
     <button data-scr="dex"><span class="ic">📖</span>図鑑</button>
     <button data-scr="train"><span class="ic">💪</span>育成</button>
   </div>
@@ -690,7 +739,44 @@ const XP_PER_LEVEL = 100;
 
 const SALON = {
   name: "セラピスト オンラインサロン",
-  url:  "https://example.com/salon"
+  url:  "https://members.tubone.jp/"
+};
+
+/* サロンに解説コンテンツがあるEPだけ、ここにURLを書く。
+   URLがあるEPの暗記カードで「もう一回」を押すと
+   「サロンで解説を見る」CTAが表示される。
+   個別ページができたら "https://members.tubone.jp/muscles/xxx" 等に差し替える。 */
+const SALON_CONTENT = {
+  1:  "https://members.tubone.jp/",  // 僧帽筋・肩井
+  2:  "https://members.tubone.jp/",  // EP2
+  3:  "https://members.tubone.jp/",  // EP3
+  4:  "https://members.tubone.jp/",  // 大腿四頭筋・梁丘
+  5:  "https://members.tubone.jp/",  // 前腕屈筋群・内関
+  6:  "https://members.tubone.jp/",  // 大臀筋・秩辺
+  7:  "https://members.tubone.jp/",  // 胸鎖乳突筋・天窓
+  8:  "https://members.tubone.jp/",  // 腓腹筋・承山
+  9:  "https://members.tubone.jp/",  // 菱形筋・膏肓
+  10: "https://members.tubone.jp/",  // 梨状筋・環跳
+  11: "https://members.tubone.jp/",  // 第1背側骨間筋
+  12: "https://members.tubone.jp/",  // 腸腰筋・大横
+  13: "https://members.tubone.jp/",  // 肩甲挙筋・肩外兪
+  14: "https://members.tubone.jp/",  // 前脛骨筋・足三里
+  15: "https://members.tubone.jp/",  // 大胸筋・中府
+  16: "https://members.tubone.jp/",  // ハムストリングス・委中
+  17: "https://members.tubone.jp/",  // 短橈側手根伸筋・手三里
+  18: "https://members.tubone.jp/",  // 斜角筋群・扶突
+  19: "https://members.tubone.jp/",  // 腰方形筋・志室
+  20: "https://members.tubone.jp/",  // 後頭下筋群・風池
+  21: "https://members.tubone.jp/",
+  22: "https://members.tubone.jp/",
+  23: "https://members.tubone.jp/",
+  24: "https://members.tubone.jp/",
+  25: "https://members.tubone.jp/",
+  26: "https://members.tubone.jp/",
+  27: "https://members.tubone.jp/",
+  28: "https://members.tubone.jp/",
+  29: "https://members.tubone.jp/",
+  30: "https://members.tubone.jp/",
 };
 function openSalon(){
   if(!SALON.url || SALON.url.indexOf("example.com")>=0){
@@ -927,7 +1013,7 @@ function showHallOfFame(){
 const AVATAR = { narrator:"🎬", patient:"🧍", detective:"🕵️", monster:"👾" };
 const WHO = { narrator:"", patient:"患者", detective:"ツボ刑事", monster:"症状モンスター" };
 
-const defaultState = () => ({ level:1, xp:0, coins:0, points:0, stats:{diagnosis:1, focus:1}, cleared:{}, dex:{}, bossBadges:[] });
+const defaultState = () => ({ level:1, xp:0, coins:0, points:0, stats:{diagnosis:1, focus:1}, cleared:{}, dex:{}, bossBadges:[], flash:{} });
 let S = load();
 let current = null, dialogIdx = 0;
 let B = null;
@@ -988,6 +1074,7 @@ function go(scr){
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active", b.dataset.scr===scr));
   if(scr==="map") renderMap();
   if(scr==="dex") renderDex();
+  if(scr==="flash") renderFlashHome();
   if(scr==="train") renderTrain();
   $("screen-"+scr).scrollTop = 0;
 }
@@ -1625,6 +1712,154 @@ function renderTrain(){
     box.appendChild(row);
   });
 }
+
+/* ---------- 暗記カード（フラッシュカード） ---------- */
+let FC = null; // {queue, idx, total, mastered, filter, flipped}
+
+function fcShuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function buildFlashCards(filter){
+  const cards=[];
+  EPISODES.forEach(ep=>{
+    if(!S.cleared[epId(ep)]) return;   // クリア済みEPのカードだけ解放
+    const m=ep.muscle, a=ep.acupoint;
+    cards.push({ id:"m"+ep.ep, ep:ep.ep, cat:"muscle", label:"💪 筋肉", topic:"「"+m.name+"」",
+      q:"「"+m.name+"」"+(m.reading?"（"+m.reading+"）":"")+"\nどんな筋肉？（位置・起始停止・作用）",
+      a:m.info });
+    cards.push({ id:"al"+ep.ep, ep:ep.ep, cat:"acu", label:"👉 ツボ・場所", topic:"経穴「"+a.name+"」",
+      q:"経穴「"+a.name+"」"+(a.reading?"（"+a.reading+"）":"")+"\nどこにある？",
+      a:a.location+(a.how?"\n\n【押し方】"+a.how:"") });
+    cards.push({ id:"ae"+ep.ep, ep:ep.ep, cat:"acu", label:"👉 ツボ・効能", topic:"経穴「"+a.name+"」",
+      q:"経穴「"+a.name+"」\n何に効く？",
+      a:a.effect+(a.meridian?"\n\n【経絡】"+a.meridian:"")+(a.caution?"\n\n⚠️ "+a.caution:"") });
+  });
+  if(filter==="muscle") return cards.filter(c=>c.cat==="muscle");
+  if(filter==="acu")    return cards.filter(c=>c.cat==="acu");
+  if(filter==="weak")   return cards.filter(c=>S.flash[c.id] && S.flash[c.id].w);
+  return cards;
+}
+
+function renderFlashHome(){
+  const all = buildFlashCards("all");
+  const mastered = all.filter(c=>S.flash[c.id] && S.flash[c.id].m).length;
+  $("flash-stat").textContent = all.length ? "　覚えた "+mastered+" / "+all.length+"枚" : "";
+  const filter = document.querySelector(".fc-chip.active").dataset.f;
+  startFlashSession(filter);
+}
+
+function startFlashSession(filter){
+  const cards = buildFlashCards(filter);
+  const area = $("fc-area");
+  if(cards.length===0){
+    area.innerHTML = '<div class="fc-empty">'+
+      (Object.keys(S.cleared).length===0
+        ? "🔒 まだカードがない。<br>マップで事件を解決すると、その筋肉・ツボのカードが解放されるぞ。"
+        : (filter==="weak" ? "🎉 苦手カードはゼロ！<br>全部覚えている状態だ。" : "このカテゴリのカードはまだない。"))
+      +'</div>';
+    FC=null; return;
+  }
+  FC = { queue:fcShuffle(cards), idx:0, total:cards.length, mastered:0, filter, flipped:false };
+  showFlashCard();
+}
+
+function showFlashCard(){
+  const area=$("fc-area");
+  if(FC.idx >= FC.queue.length){ showFlashDone(); return; }
+  const c = FC.queue[FC.idx];
+  FC.flipped=false;
+  const doneCount = Math.min(FC.idx, FC.total);
+  area.innerHTML =
+    '<div class="fc-progress"><span>'+(FC.idx+1)+' / '+FC.queue.length+'枚</span><span>覚えた '+FC.mastered+'</span></div>'+
+    '<div class="fc-bar"><i style="width:'+(FC.idx/FC.queue.length*100)+'%"></i></div>'+
+    '<div class="fc-card" id="fc-card" onclick="flipFlashCard()">'+
+      '<div class="fc-cat">'+c.label+'</div><div class="fc-ep">EP'+c.ep+'</div>'+
+      '<div class="fc-q">'+c.q.replace(/\n/g,"<br>")+'</div>'+
+      '<div class="fc-tap">タップで答えを見る</div>'+
+    '</div>'+
+    '<div id="fc-controls"></div>';
+}
+
+function flipFlashCard(){
+  if(!FC || FC.flipped) return;
+  FC.flipped=true;
+  const c = FC.queue[FC.idx];
+  const card=$("fc-card");
+  card.classList.add("flipped");
+  card.innerHTML =
+    '<div class="fc-cat">'+c.label+'</div><div class="fc-ep">EP'+c.ep+'</div>'+
+    '<div class="fc-a">'+c.a.replace(/\n/g,"<br>")+'</div>';
+  card.onclick=null;
+  $("fc-controls").innerHTML =
+    '<div class="fc-btns">'+
+      '<button class="fc-again" onclick="answerFlash(false)">❌ もう一回</button>'+
+      '<button class="fc-know" onclick="answerFlash(true)">⭕ 覚えた</button>'+
+    '</div>'+
+    '<div id="fc-salon"></div>';
+}
+
+function answerFlash(known){
+  const c = FC.queue[FC.idx];
+  if(!S.flash) S.flash={};
+  if(known){
+    S.flash[c.id]={ w:false, m:true };
+    FC.mastered++;
+    save();
+    FC.idx++;
+    showFlashCard();
+  } else {
+    S.flash[c.id]={ w:true, m:false };
+    save();
+    FC.queue.push(c);            // セッション内で再出題（覚えるまで終わらない）
+    const salonUrl = SALON_CONTENT[c.ep];
+    if(salonUrl){
+      // わからなかった瞬間 = 学びたい感情が最大 → ここだけサロンCTA
+      $("fc-controls").innerHTML =
+        '<div class="fc-salon-cta">'+
+          '<div class="t">💡 この内容、動画で理解しませんか？</div>'+
+          '<div class="b">'+c.topic+'はサロンで動画解説しています。文字より映像の方が圧倒的に記憶に残ります。</div>'+
+          '<button class="fc-salon-btn" onclick="window.open(\''+salonUrl+'\',\'_blank\',\'noopener\')">🎬 サロンで解説を見る →</button>'+
+        '</div>'+
+        '<div class="fc-btns" style="margin-top:10px"><button class="fc-know" style="background:linear-gradient(#3a5a7a,#2a4560)" onclick="FC.idx++;showFlashCard()">続けて暗記する ▶</button></div>';
+    } else {
+      FC.idx++;
+      showFlashCard();
+    }
+  }
+}
+
+function showFlashDone(){
+  const gain = 10 + FC.mastered * 1;
+  S.xp += gain;
+  while(S.xp >= XP_PER_LEVEL){ S.xp -= XP_PER_LEVEL; S.level++; S.points++; }
+  save(); renderHeader();
+  SFX.bonus();
+  const allC = buildFlashCards("all");
+  $("flash-stat").textContent = "　覚えた "+allC.filter(c=>S.flash[c.id]&&S.flash[c.id].m).length+" / "+allC.length+"枚";
+  $("fc-area").innerHTML =
+    '<div class="fc-done">'+
+      '<div class="big">🎉</div>'+
+      '<div class="t">セッション完了！</div>'+
+      '<div class="s">'+FC.total+'枚中 '+FC.mastered+'枚を「覚えた」<br>けいけんち +'+gain+' を獲得！</div>'+
+      '<div class="fc-btns">'+
+        '<button class="fc-know" onclick="renderFlashHome()">🔁 もう一周</button>'+
+        '<button class="fc-again" style="background:linear-gradient(#3a5a7a,#2a4560)" onclick="go(\'map\')">マップへ</button>'+
+      '</div>'+
+    '</div>';
+  FC=null;
+}
+
+// フィルターチップ
+document.querySelectorAll(".fc-chip").forEach(ch=>{
+  ch.addEventListener("click", ()=>{
+    document.querySelectorAll(".fc-chip").forEach(c=>c.classList.remove("active"));
+    ch.classList.add("active");
+    renderFlashHome();
+  });
+});
 
 /* ---------- デイリーログインボーナス ---------- */
 function checkDailyBonus(){
