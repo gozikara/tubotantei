@@ -631,8 +631,6 @@
       <div class="panel-row hidden" id="b-moves">
         <div class="move-list" id="move-list"></div>
         <div class="move-info">
-          <span class="mi-type" id="mi-type">けいけつ</span>
-          <div class="mi-pp pixel" id="mi-pp">PP 5/ 5</div>
           <div class="mi-hint" id="mi-hint">弱点の経穴を選べ</div>
         </div>
       </div>
@@ -1442,12 +1440,10 @@ function showMoves(){
   B.opts.forEach((o,i)=>{
     const b=document.createElement("button");
     b.className="move";
-    b.innerHTML = o.text + '<small>けいけつ・PP 5/5</small>';
+    b.innerHTML = o.text;
     b.addEventListener("click", ()=>useMove(i));
     list.appendChild(b);
   });
-  $("mi-type").textContent="けいけつ";
-  $("mi-pp").textContent="PP 5/ 5";
   $("mi-hint").textContent = "弱点の経穴を選べ";
   $("b-moves").classList.remove("hidden");
 }
