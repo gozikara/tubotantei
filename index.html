@@ -50,6 +50,14 @@
 
   .screen { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
   .screen.hidden { display: none; }
+  /* ストーリー画面：進行ボタンを常に親指の届く位置に固定 */
+  #screen-story { display:flex; flex-direction:column; padding-bottom:0; }
+  #screen-story .dialog { flex:1; }
+  #screen-story .story-actions { position:sticky; bottom:0; left:0; right:0;
+    background:linear-gradient(180deg, rgba(16,24,32,0) 0%, #101820 28%);
+    padding:18px 0 calc(14px + var(--safe-b, 0px)); margin:0 -16px; padding-left:16px; padding-right:16px; }
+  #screen-story .story-actions .btn { margin-bottom:8px; }
+  #screen-story .story-actions .btn:last-child { margin-bottom:0; }
   .h { font-size: 1.1rem; font-weight: 900; color: #ffc832; margin-bottom: 4px; }
   .sub { font-size: .78rem; color: #8899aa; margin-bottom: 16px; line-height: 1.6; }
 
@@ -546,9 +554,11 @@
     <span class="patient-tag" id="story-patient"></span>
     <div class="case-info" id="story-caseinfo"></div>
     <div class="dialog" id="story-dialog"></div>
-    <button class="btn ghost" id="btn-advance">▼ つづき</button>
-    <button class="btn primary hidden" id="btn-start-battle">⚔️ バトル開始</button>
-    <button class="btn ghost" onclick="go('map')">← マップに戻る</button>
+    <div class="story-actions">
+      <button class="btn ghost" id="btn-advance">▼ つづき</button>
+      <button class="btn primary hidden" id="btn-start-battle">⚔️ バトル開始</button>
+      <button class="btn ghost" onclick="go('map')">← マップに戻る</button>
+    </div>
   </div>
 
   <!-- DEX -->
