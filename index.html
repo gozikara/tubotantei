@@ -425,6 +425,33 @@
   .fc-done .s { font-size:.8rem; color:#7a9ab8; margin-bottom:20px; line-height:1.6; }
   .fc-empty { text-align:center; padding:40px 16px; color:#6888a8; font-size:.82rem; line-height:1.8; }
 
+  /* ===== マイページ ===== */
+  .pf-card { background:rgba(255,255,255,.04); border:1px solid #22354a; border-radius:16px;
+    padding:18px 16px; margin-bottom:14px; }
+  .pf-hero { text-align:center; }
+  .pf-avatar { font-size:3rem; margin-bottom:6px; }
+  .pf-name { font-size:1.15rem; font-weight:900; color:#dce8f4; }
+  .pf-rank { font-size:.78rem; color:#ffc832; font-weight:700; margin-top:2px; }
+  .pf-champion { margin-top:10px; display:inline-block; background:rgba(255,200,50,.12);
+    border:1px solid rgba(255,200,50,.45); border-radius:12px; padding:5px 14px;
+    font-size:.75rem; font-weight:800; color:#ffc832; }
+  .pf-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .pf-stat { background:rgba(255,255,255,.04); border:1px solid #22354a; border-radius:14px;
+    padding:14px 10px; text-align:center; }
+  .pf-stat .v { font-size:1.5rem; font-weight:900; color:#4a9eff; }
+  .pf-stat .v small { font-size:.75rem; color:#4a6a8a; font-weight:700; }
+  .pf-stat .l { font-size:.68rem; color:#7a9ab8; margin-top:3px; }
+  .pf-sec-t { font-size:.78rem; font-weight:800; color:#8899aa; margin-bottom:10px; }
+  .pf-shelf { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .pf-badge { width:46px; height:46px; border-radius:12px; display:grid; place-items:center;
+    font-size:1.5rem; background:rgba(255,255,255,.04); border:1px solid #22354a;
+    filter:grayscale(1) brightness(.55); }
+  .pf-badge.got { filter:none; border-color:rgba(255,130,200,.5); background:rgba(255,130,200,.1);
+    box-shadow:0 0 10px rgba(255,130,200,.25); }
+  .pf-login { background:rgba(255,255,255,.04); border:1px solid #22354a; border-radius:14px;
+    padding:14px 16px; font-size:.78rem; color:#7a9ab8; text-align:center; line-height:1.6; }
+  .pf-login.on { border-color:rgba(80,200,120,.4); color:#8ac8a0; }
+
   /* ===== Firebase ログインUI ===== */
   #fb-btn { position:fixed; top:10px; right:10px; z-index:200; background:rgba(20,30,45,.92);
     border:1px solid rgba(74,158,255,.4); border-radius:20px; padding:5px 12px 5px 8px;
@@ -531,16 +558,10 @@
     <div class="dex-grid" id="dex-grid"></div>
   </div>
 
-  <!-- TRAINING -->
+  <!-- MY PAGE -->
   <div class="screen hidden" id="screen-train">
-    <div class="h">💪 育成・トレーニング</div>
-    <div class="sub">レベルアップで手に入る捜査ポイントを割り振ってツボ刑事を強化しよう。</div>
-    <div class="stat-card">
-      <div style="font-size:.78rem;color:#4a9eff;font-weight:800;margin-bottom:6px;">未割り振りポイント</div>
-      <div style="font-size:1.9rem;font-weight:900;color:#ffc832;" id="t-points">0</div>
-    </div>
-    <div class="stat-card" id="t-stats"></div>
-    <div class="sub" style="text-align:center">「診断眼」が高いほど技の威力が上がり、「集中力」が高いほど刑事の体力(耐久)が増える。</div>
+    <div class="h">👤 マイページ</div>
+    <div id="pf-area"></div>
   </div>
 
   <!-- FLASHCARDS -->
@@ -727,7 +748,7 @@
     <button data-scr="map" class="active"><span class="ic">🗺</span>マップ</button>
     <button data-scr="flash"><span class="ic">🃏</span>暗記</button>
     <button data-scr="dex"><span class="ic">📖</span>図鑑</button>
-    <button data-scr="train"><span class="ic">💪</span>育成</button>
+    <button data-scr="train"><span class="ic">👤</span>マイページ</button>
   </div>
 
 </div>
@@ -1717,22 +1738,52 @@ function renderDex(){
   });
 }
 
-/* ---------- train ---------- */
-const STAT_DEFS=[
-  {key:"diagnosis", name:"診断眼", desc:"高いほど技の威力(与ダメージ)が上がる"},
-  {key:"focus", name:"集中力", desc:"高いほど刑事の体力(耐久)が増える"},
-];
+/* ---------- マイページ ---------- */
 function renderTrain(){
-  $("t-points").textContent=S.points;
-  const box=$("t-stats"); box.innerHTML="";
-  STAT_DEFS.forEach(def=>{
-    const row=document.createElement("div"); row.className="stat-row";
-    row.innerHTML='<div class="stat-name">'+def.name+'<small>'+def.desc+'</small></div>'+
-      '<div style="display:flex;align-items:center;gap:12px;"><span class="stat-val">'+S.stats[def.key]+'</span>'+
-      '<button class="stat-up" '+(S.points<=0?"disabled":"")+'>+</button></div>';
-    row.querySelector(".stat-up").addEventListener("click", ()=>{ if(S.points<=0)return; S.points--; S.stats[def.key]++; save(); renderTrain(); renderHeader(); });
-    box.appendChild(row);
+  const rank = getRank(S.level);
+  const clearedCount = Object.keys(S.cleared).length;
+  const bossDone = (S.bossBadges||[]).length;
+  const allCards = buildFlashCards("all");
+  const mastered = allCards.filter(c=>S.flash[c.id]&&S.flash[c.id].m).length;
+  const dexCount = Object.keys(S.dex||{}).length;
+
+  // ログイン状態
+  const loginHtml = (typeof fbUser!=="undefined" && fbUser)
+    ? '<div class="pf-login on">☁️ <b>'+(fbUser.displayName||"ログイン中")+'</b> として保存中<br><small>'+(fbUser.email||"")+'</small></div>'
+    : '<div class="pf-login"><div style="margin-bottom:8px">進捗はこの端末にしか保存されていません</div>'+
+      '<button class="lm-google" onclick="fbGoogleLogin()" style="margin-bottom:0">'+
+      '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">Googleでログイン・保存する</button></div>';
+
+  // バッジ棚
+  let badgeShelf = "";
+  BOSSES.forEach(b=>{
+    const got = (S.bossBadges||[]).includes(b.ep);
+    badgeShelf += '<div class="pf-badge'+(got?" got":"")+'" title="'+b.name+'">'+(got?b.badge:"❓")+'</div>';
   });
+
+  $("pf-area").innerHTML =
+    // プロフィールカード
+    '<div class="pf-card pf-hero">'+
+      '<div class="pf-avatar">'+rank.badge+'</div>'+
+      '<div class="pf-name">'+(S.playerName||"ツボ刑事")+'</div>'+
+      '<div class="pf-rank">'+rank.name+'　Lv.'+S.level+'</div>'+
+      '<div class="fc-bar" style="margin:10px 24px 4px"><i style="width:'+(S.xp/XP_PER_LEVEL*100)+'%"></i></div>'+
+      '<div style="font-size:.68rem;color:#6888a8">つぎのレベルまで '+(XP_PER_LEVEL-S.xp)+' XP</div>'+
+      (S.leagueClear?'<div class="pf-champion">🏆 殿堂入り — 伝説のセラピスト</div>':'')+
+    '</div>'+
+    // 実績グリッド
+    '<div class="pf-grid">'+
+      '<div class="pf-stat"><div class="v">'+clearedCount+'<small>/'+EPISODES.length+'</small></div><div class="l">🔎 解決した事件</div></div>'+
+      '<div class="pf-stat"><div class="v">'+bossDone+'<small>/6</small></div><div class="l">🎖️ 流派バッジ</div></div>'+
+      '<div class="pf-stat"><div class="v">'+mastered+'<small>/'+allCards.length+'</small></div><div class="l">🃏 覚えたカード</div></div>'+
+      '<div class="pf-stat"><div class="v">'+dexCount+'</div><div class="l">📖 図鑑登録</div></div>'+
+    '</div>'+
+    // バッジ棚
+    '<div class="pf-card"><div class="pf-sec-t">🎖️ 流派バッジ</div><div class="pf-shelf">'+badgeShelf+'</div></div>'+
+    // ログイン
+    loginHtml+
+    // サロン導線
+    '<button class="fc-salon-btn" style="margin-top:12px" onclick="openSalon()">🎬 オンラインサロンで動画解説を見る →</button>';
 }
 
 /* ---------- 暗記カード（フラッシュカード） ---------- */
