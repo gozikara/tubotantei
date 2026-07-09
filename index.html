@@ -482,7 +482,9 @@
     width:100%; max-width:480px; text-align:center; }
   .lm-icon { font-size:2.8rem; margin-bottom:10px; }
   .lm-title { font-size:1.15rem; font-weight:900; color:#cce4ff; margin-bottom:6px; }
-  .lm-body { font-size:.82rem; color:#7a9ab8; margin-bottom:22px; line-height:1.6; }
+  .lm-body { font-size:.82rem; color:#7a9ab8; margin-bottom:14px; line-height:1.6; }
+  .lm-warn { font-size:.74rem; color:#ff9a9a; background:rgba(255,80,80,.08); border:1px solid rgba(255,80,80,.3);
+    border-radius:10px; padding:9px 12px; margin-bottom:16px; line-height:1.5; text-align:left; }
   .lm-google { display:flex; align-items:center; justify-content:center; gap:10px;
     background:#fff; color:#222; font-weight:700; font-size:.95rem; border:none;
     border-radius:12px; padding:13px 24px; width:100%; cursor:pointer; margin-bottom:10px; }
@@ -515,6 +517,7 @@
         <div class="lm-benefit-row"><span class="lm-benefit-icon">📊</span>学習記録が蓄積されていく</div>
       </div>
       <div class="lm-body" id="lm-body">Googleアカウントで1タップでログインできます。</div>
+      <div class="lm-warn">⚠️ ログインしないと、ブラウザのデータを消したり機種変した時に<b>この記録は復元できません</b></div>
       <button class="lm-google" onclick="fbGoogleLogin()">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
         Googleでログイン・保存する
@@ -1643,9 +1646,10 @@ $("btn-boss-fight").addEventListener("click", ()=>{
 
 function bossBattleWin(boss, bXp, bCoin){
   if(!S.bossBadges) S.bossBadges = [];
+  const allBadgesNow = !S.bossBadges.includes(boss.ep) && BOSSES.every(b=>b.ep===boss.ep || S.bossBadges.includes(b.ep));
   if(!S.bossBadges.includes(boss.ep)) S.bossBadges.push(boss.ep);
   save();
-  maybePromptLogin("boss");
+  maybePromptLogin(allBadgesNow ? "allbadges" : "boss");
   $("bv-badge").textContent = boss.badge;
   $("bv-title").textContent = boss.chapter + " クリア！";
   $("bv-sub").textContent = boss.name + " を倒した！"+(bXp?"　⚡XP+"+bXp+"　🪙+"+bCoin:"");
@@ -1973,6 +1977,10 @@ function checkDailyBonus(){
   setTimeout(()=>showRival("🌅 今日も来たな！　経験値＋"+bonus+"をプレゼントしよう。毎日続けることが、現場での自信に直結するぞ。"), 600);
 }
 
+/* ---------- 起動回数トラッキング ---------- */
+const tuboOpenCount = (parseInt(localStorage.getItem("tuboOpenCount_v1"),10) || 0) + 1;
+localStorage.setItem("tuboOpenCount_v1", tuboOpenCount);
+
 /* ---------- init ---------- */
 if(EPISODES.length===0){
   $("screen-map").innerHTML='<div class="h">データがありません</div><div class="sub">js/data.js の EPISODES にエピソードを追加してください。</div>';
@@ -2076,7 +2084,7 @@ function fbLoginOrProfile(){
 /* ===== モーダル表示・非表示 ===== */
 function showLmModal(title, body){
   document.getElementById("lm-title").textContent = title || "進捗を保存しませんか？";
-  if(body) document.getElementById("lm-body").textContent = body;
+  document.getElementById("lm-body").textContent = body || "Googleアカウントで1タップでログインできます。";
   document.getElementById("login-modal").classList.add("show");
   lmShownThisSession = true;
 }
@@ -2087,13 +2095,19 @@ function closeLmModal(){
 /* ===== 自動促進トリガー ===== */
 // EPクリア・ボスバッジ取得後に呼ぶ
 function maybePromptLogin(trigger){
-  if(fbUser || lmShownThisSession) return;
+  if(fbUser) return;
+  // 全バッジ揃った瞬間だけは、一度promptを見せていても再度出す（一番惜しいタイミングのため）
+  if(lmShownThisSession && trigger!=="allbadges") return;
   const titles = {
     ep3:   "3件解決！進捗を保存しませんか？",
     boss:  "バッジ獲得！記録を残しませんか？",
     ep10:  "10件解決！ここまでの記録を保存しよう",
+    allbadges: "🏆 全バッジ獲得おめでとう！",
   };
-  setTimeout(()=> showLmModal(titles[trigger] || "進捗を保存しませんか？"), 800);
+  const bodies = {
+    allbadges: "ここまでの記録、このままだと消えてしまうかもしれません。最終試練に挑む前に、今すぐ保存しておきませんか？",
+  };
+  setTimeout(()=> showLmModal(titles[trigger] || "進捗を保存しませんか？", bodies[trigger]), 800);
 }
 
 /* ===== 認証状態監視 ===== */
@@ -2103,6 +2117,14 @@ fbAuth.onAuthStateChanged(async user => {
   if(user){
     await fbLoad();
     await fbSave();
+  } else {
+    // 2回目起動時：ログインし忘れた人への再アプローチ
+    if(typeof tuboOpenCount!=="undefined" && tuboOpenCount===2 && Object.keys(S.cleared).length>0){
+      setTimeout(()=> showLmModal(
+        "また来てくれましたね！",
+        "前回の続きです。今のうちにログインしておくと、スマホを変えてもこの記録は消えません。"
+      ), 1200);
+    }
   }
 });
 
