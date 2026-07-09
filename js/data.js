@@ -289,7 +289,7 @@ window.EPISODES = [
     symptom: "膝の重だるさ",
     trigger: "階段の上り下りや立ち上がる時が一番しんどくて…長く歩いた後も。",
     gaveup: "膝が重くて 孫に会いに行けない",
-    monster: { name:"ヒザリオン", emoji:"🦵", intro:"グォォ……膝の重だるさに苦しむ者を見つけたぞ！" },
+    monster: { name:"ヒザリオン", emoji:"🦵", intro:"グォォ……膝の重だるさに苦しむ者を見つけたぞ！", img:"images/monsters/ep4.jpeg" },
     muscle: { name:"大腿四頭筋", reading:"", info:"起始：腸骨前下棘・大腿骨前面・大腿骨粗線　停止：膝蓋骨を経て脛骨粗面　作用：膝関節の伸展・股関節の屈曲（大腿直筋）　支配神経：大腿神経（第2〜第4腰椎神経 L2〜L4）" },
     acupoint: { name:"梁丘（りょうきゅう）", reading:"", meridian:"", location:"腸骨前上棘と膝蓋骨外側縁を結ぶ線上、膝蓋骨外上角の上方2寸", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"膝の重だるさの緩和・大腿四頭筋の緊張解除" },
     script: [
@@ -642,7 +642,7 @@ window.EPISODES = [
     symptom: "膝裏の張り",
     trigger: "モップがけや床磨きで前傾屈曲姿勢が毎日8時間続いてて…膝が伸ばせなくて。",
     gaveup: "膝裏が張って 同僚に迷惑をかけてしまう",
-    monster: { name:"ヒザウラゴン", emoji:"🐊", intro:"グォォ……膝裏の張りに苦しむ者を見つけたぞ！" },
+    monster: { name:"ヒザウラゴン", emoji:"🐊", intro:"グォォ……膝裏の張りに苦しむ者を見つけたぞ！", img:"images/monsters/ep16.jpeg" },
     muscle: { name:"ハムストリングス", reading:"", info:"起始：坐骨結節（大腿二頭筋長頭・半腱様筋・半膜様筋）　停止：腓骨頭（大腿二頭筋）・脛骨内側面＝鵞足（半腱様筋）・脛骨内側顆後面（半膜様筋）　作用：膝関節の屈曲・股関節の伸展　支配神経：坐骨神経（第5腰椎〜第2仙椎神経 L5〜S2）" },
     acupoint: { name:"委中（いちゅう）", reading:"", meridian:"脾経", location:"膝窩横紋の中央", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"膝裏の張りの緩和・ハムストリングスの緊張解除" },
     script: [
@@ -672,7 +672,7 @@ window.EPISODES = [
     symptom: "肘の痛み",
     trigger: "ラケットを握って手首を反らすとズキッとして…バックハンドが一番ひどくて。",
     gaveup: "肘が痛くて 生徒に見本が見せられない",
-    monster: { name:"ヒジドン", emoji:"🦾", intro:"グォォ……肘の痛みに苦しむ者を見つけたぞ！" },
+    monster: { name:"ヒジドン", emoji:"🦾", intro:"グォォ……肘の痛みに苦しむ者を見つけたぞ！", img:"images/monsters/ep17.jpeg" },
     muscle: { name:"短橈側手根伸筋", reading:"", info:"起始：上腕骨外側上顆（総指伸筋と共通腱）　停止：第3中手骨底背側面　作用：手関節の背屈・橈屈　支配神経：橈骨神経深枝（第6・第7頸椎神経 C6〜C7）" },
     acupoint: { name:"手三里（てさんり）", reading:"", meridian:"", location:"曲池の下方2寸、前腕橈側", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"肘の痛みの緩和・短橈側手根伸筋の緊張解除" },
     script: [
