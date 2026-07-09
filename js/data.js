@@ -434,7 +434,7 @@ window.EPISODES = [
     symptom: "肩甲骨まわりの張り",
     trigger: "電子カルテの入力で前傾姿勢のままPC作業が増えて…気づいたら固まってて。",
     gaveup: "肩甲骨が張って 弓道大会に出られない",
-    monster: { name:"ケンコウルー", emoji:"🔵", intro:"グォォ……肩甲骨まわりの張りに苦しむ者を見つけたぞ！" },
+    monster: { name:"ケンコウルー", emoji:"🔵", intro:"グォォ……肩甲骨まわりの張りに苦しむ者を見つけたぞ！", img:"images/monsters/ep9.jpeg" },
     muscle: { name:"菱形筋", reading:"", info:"起始：第6・7頸椎棘突起・第1〜4胸椎棘突起　停止：肩甲骨内側縁　作用：肩甲骨の内転・挙上・下方回旋　支配神経：肩甲背神経（第4・第5頸椎神経 C4〜C5）" },
     acupoint: { name:"膏肓（こうこう）", reading:"", meridian:"", location:"第4胸椎棘突起下縁と第5胸椎棘突起上縁の中点の外方3寸", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"肩甲骨まわりの張りの緩和・菱形筋の緊張解除" },
     script: [
@@ -732,7 +732,7 @@ window.EPISODES = [
     symptom: "腰痛",
     trigger: "床張り工事で中腰のまま横に移動する作業が数週間続いてるんです。",
     gaveup: "腰の横が痛くて 弟子に気を遣われてしまう",
-    monster: { name:"コシヨコドン", emoji:"⛰️", intro:"グォォ……腰の横の痛みに苦しむ者を見つけたぞ！" },
+    monster: { name:"コシヨコドン", emoji:"⛰️", intro:"グォォ……腰の横の痛みに苦しむ者を見つけたぞ！", img:"images/monsters/ep19.jpeg" },
     muscle: { name:"腰方形筋", reading:"", info:"起始：腸骨稜・腸腰靭帯　停止：第12肋骨・第1〜第4腰椎横突起　作用：体幹の側屈・第12肋骨の固定（呼吸補助）　支配神経：肋骨下神経・腰神経叢前枝（第12胸椎神経〜第3腰椎神経 T12〜L3）" },
     acupoint: { name:"志室（ししつ）", reading:"", meridian:"", location:"第2腰椎（L2）棘突起下、後正中線の外方3寸", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"腰痛の緩和・腰方形筋の緊張解除" },
     script: [
@@ -882,7 +882,7 @@ window.EPISODES = [
     symptom: "手首の疲れ",
     trigger: "一日30人以上の患者さんを診るようになって…器具を握り続ける時間が増えてしまって。",
     gaveup: "手首が疲れて 患者さんの前で怖くなってしまった",
-    monster: { name:"テクビダルン", emoji:"🦑", intro:"グォォ……手首の疲れに苦しむ者を見つけたぞ！" },
+    monster: { name:"テクビダルン", emoji:"🦑", intro:"グォォ……手首の疲れに苦しむ者を見つけたぞ！", img:"images/monsters/ep24.jpeg" },
     muscle: { name:"手根屈筋群", reading:"", info:"起始：上腕骨内側上顆（共通屈筋腱）　停止：第2・第3中手骨底（橈側手根屈筋）・豆状骨〜第5中手骨底（尺側手根屈筋）　作用：手関節の屈曲・橈屈・尺屈　支配神経：正中神経・尺骨神経（第6頸椎〜第1胸椎神経 C6〜T1）" },
     acupoint: { name:"大陵（だいりょう）", reading:"", meridian:"心包経", location:"手関節掌側横紋の中央、橈側手根屈筋腱と長掌筋腱の間", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"手首の疲れの緩和・手根屈筋群の緊張解除" },
     script: [
