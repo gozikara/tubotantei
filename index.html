@@ -92,6 +92,7 @@
     border: 3px solid #1f5418; box-shadow: 0 3px 0 rgba(0,0,0,.25); transition: transform .12s; }
   .patch:active .field2 { transform: scale(.94); }
   .patch .field2 .mon { font-size: 1.9rem; line-height: 1; filter: drop-shadow(1px 2px 2px rgba(0,0,0,.4)); }
+  .patch .field2 .mon img { width: 40px; height: 40px; object-fit: contain; image-rendering: pixelated; }
   .patch.new .field2 { border-color: #ffd23a; animation: pulse 1.6s infinite; }
   @keyframes pulse { 0%{box-shadow:0 3px 0 rgba(0,0,0,.25), 0 0 0 0 rgba(255,210,58,.6)} 70%{box-shadow:0 3px 0 rgba(0,0,0,.25), 0 0 0 12px rgba(255,210,58,0)} 100%{box-shadow:0 3px 0 rgba(0,0,0,.25), 0 0 0 0 rgba(255,210,58,0)} }
   .patch.cleared .field2 { border-color: #ffffff; }
@@ -216,6 +217,7 @@
   @keyframes flash2 { from{opacity:.4} to{opacity:1} }
   .boss-title-bar { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
   .boss-emoji { font-size:5rem; animation:bossBounce 1.2s infinite; filter:drop-shadow(0 0 18px #ff2288); }
+  .boss-emoji img { width:130px; height:130px; object-fit:contain; image-rendering:pixelated; }
   @keyframes bossBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
   .boss-name { font-size:1.3rem; font-weight:900; color:#ff88cc; margin-bottom:8px; text-align:center; }
   .boss-chapter { font-size:.72rem; color:#a060a0; margin-bottom:14px; }
@@ -271,8 +273,10 @@
   .battler .disc { width: 128px; height: 34px; border-radius: 50%;
     background: radial-gradient(ellipse at 50% 45%, rgba(120,180,70,.9), rgba(120,180,70,0) 70%); margin: -14px auto 0; }
   .battler .mon { font-size: 5rem; line-height: 1; filter: drop-shadow(2px 4px 3px rgba(0,0,0,.35)); display:inline-block; }
+  .battler .mon img { width: 110px; height: 110px; object-fit: contain; image-rendering: pixelated; display:block; }
   .battler.enemy { top: 30px; right: 26px; }
   .battler.enemy .mon { font-size: 4.4rem; }
+  .battler.enemy .mon img { width: 96px; height: 96px; }
   .battler.mine { bottom: 78px; left: 20px; }
   .battler.mine .mon { transform: scaleX(-1); }
   .mon.shake { animation: shake .4s; }
@@ -870,22 +874,22 @@ const RIVAL_BY_RANK = {
 /* ===== ボスデータ ===== */
 const BOSS_EPS = [5, 10, 15, 20, 25, 30];
 const BOSSES = [
-  { ep:5,  name:'迷子の施術家 ユウタ',        emoji:'🤷', badge:'🎖️',  chapter:'第1章ボス',
+  { ep:5,  name:'迷子の施術家 ユウタ',        emoji:'🤷', badge:'🎖️',  chapter:'第1章ボス', img:'images/bosses/ep5_yuta.jpeg',
     winMsg:'…そんなに知識って大事なんすか。ちょっと勉強してみようかな',
     msg:'「え、細かいこと考えなくても強く押せば喜ぶじゃないですか」' },
-  { ep:10, name:'SNSカリスマ セラピスト・ハナ', emoji:'📱', badge:'🏅',  chapter:'第2章ボス',
+  { ep:10, name:'SNSカリスマ セラピスト・ハナ', emoji:'📱', badge:'🏅',  chapter:'第2章ボス', img:'images/bosses/ep10_hana.jpeg',
     winMsg:'…エビデンスって、そんなに大事なんだ。フォロワーに謝らなきゃ',
     msg:'「私のメソッド、フォロワーさんみんなに好評なんだけど？論文とか関係なくない？」' },
-  { ep:15, name:'鉄の指を持つ男 剛田 修',      emoji:'💪', badge:'⭐',  chapter:'第3章ボス',
+  { ep:15, name:'鉄の指を持つ男 剛田 修',      emoji:'💪', badge:'⭐',  chapter:'第3章ボス', img:'images/bosses/ep15_goda.jpeg',
     winMsg:'…なるほど。経験に知識が加われば、もっと遠くへ行けるか。認めよう',
     msg:'「教科書通りにやって何が面白い。30年の経験に勝る教科書はない」' },
-  { ep:20, name:'骸骨博士 ドクター・オステオ',  emoji:'💀', badge:'🌟',  chapter:'第4章ボス',
+  { ep:20, name:'骸骨博士 ドクター・オステオ',  emoji:'💀', badge:'🌟',  chapter:'第4章ボス', img:'images/bosses/ep20_osteo.jpeg',
     winMsg:'…完璧だ。君の知識は本物だ。だが現場では患者に伝える言葉も必要だぞ',
     msg:'「起始・停止・支配神経を言えない者は施術する資格がない！」' },
   { ep:25, name:'フランチャイズ帝王 黒川 龍一', emoji:'💼', badge:'💎',  chapter:'第5章ボス',
     winMsg:'…本物の技術と知識か。私が忘れていたものだ。だがこの業界、それだけじゃ生き残れないぞ',
     msg:'「君みたいな個人サロンが私のチェーンに勝てると思ってるの？知識より集客力だよ」' },
-  { ep:30, name:'伝説の廃業者 白銀 蒼',        emoji:'👑', badge:'🏆',  chapter:'最終ボス',
+  { ep:30, name:'伝説の廃業者 白銀 蒼',        emoji:'👑', badge:'🏆',  chapter:'最終ボス', img:'images/bosses/ep30_shirogane.jpeg',
     winMsg:'…まだ信じられるのか、この業界を。ならば君が証明してみせろ。本物のセラピストが報われる未来を',
     msg:'「君も私と同じ道を歩むことになる。本物であるほど、この業界では孤独になっていくんだ」' },
 ];
@@ -1204,10 +1208,14 @@ function renderMap(){
     if(boss) cls += " boss-node";
     patch.className = cls;
     patch.style.left=pos.xPct+"%"; patch.style.top=pos.yPx+"px";
-    const monEmoji = unlocked ? (cleared ? "✅" : ep.monster.emoji) : "🔒";
     const signLabel = unlocked ? "EP"+ep.ep+" "+ep.location : "？？？";
+    let monInner;
+    if(!unlocked) monInner = "🔒";
+    else if(cleared) monInner = "✅";
+    else if(ep.monster.img) monInner = '<img src="'+ep.monster.img+'" alt="" onerror="this.parentNode.textContent=\''+ep.monster.emoji+'\'">';
+    else monInner = ep.monster.emoji;
     patch.innerHTML =
-      '<div class="field2"><span class="mon">'+monEmoji+'</span></div>' +
+      '<div class="field2"><span class="mon">'+monInner+'</span></div>' +
       '<div class="sign">'+(boss?"⚡ ":"")+signLabel+'</div>' +
       (boss ? '<div class="boss-badge-overlay">'+(bossEarned ? boss.badge : "⚔️")+'</div>' : "");
     if(unlocked){
@@ -1319,6 +1327,14 @@ $("btn-start-battle").addEventListener("click", ()=>startBattle(current));
  * ============================================================ */
 function hpColor(r){ return r>0.5 ? "var(--hp-green)" : r>0.2 ? "var(--hp-yellow)" : "var(--hp-red)"; }
 
+/* モンスター/キャラの顔を表示。imgがあればイラスト、無ければ絵文字にフォールバック */
+function setMonFace(el, entity){
+  if(entity && entity.img){
+    el.innerHTML = '<img src="'+entity.img+'" alt="" onerror="this.parentNode.textContent=\''+(entity.emoji||"❓")+'\'">';
+  } else {
+    el.textContent = (entity && entity.emoji) || "❓";
+  }
+}
 function startBattle(ep){
   SFX.enter();
   const isBoss = !!ep.isBoss;
@@ -1332,8 +1348,10 @@ function startBattle(ep){
   $("m-hpnum").textContent = B.mMax+"/ "+B.mMax;
   $("m-exp").style.width = (S.xp/XP_PER_LEVEL*100)+"%";
   const em=$("e-mon"), mm=$("m-mon");
-  em.textContent = ep.monster.emoji; em.className="mon enter-e";
-  mm.textContent = "🕵️"; mm.className="mon mine enter-m";
+  setMonFace(em, ep.monster);
+  em.className="mon enter-e";
+  setMonFace(mm, { emoji:"🕵️", img:"images/player/idle.jpeg" });
+  mm.className="mon mine enter-m";
   $("topbar").classList.add("hidden");
   $("nav").classList.add("hidden");
   document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
@@ -1592,7 +1610,7 @@ function winBattle(){
 /* ---------- ボスチャレンジ ---------- */
 function showBossIntro(boss){
   currentBoss = boss;
-  $("boss-emoji").textContent = boss.emoji;
+  setMonFace($("boss-emoji"), boss);
   $("boss-name").textContent = boss.name;
   $("boss-chapter").textContent = boss.chapter;
   $("boss-msg").textContent = boss.msg;
@@ -1616,7 +1634,7 @@ $("btn-boss-fight").addEventListener("click", ()=>{
   const bossQuiz = fcShuffle(poolEps.flatMap(e=>e.quiz)).slice(0,6);
   const bossEp = Object.assign({}, bossEpObj, {
     quiz: bossQuiz,
-    monster: { name: currentBoss.name, emoji: currentBoss.emoji },
+    monster: { name: currentBoss.name, emoji: currentBoss.emoji, img: currentBoss.img },
     isBoss: true,
     bossRef: currentBoss,
   });

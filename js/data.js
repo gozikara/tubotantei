@@ -27,7 +27,7 @@ window.EPISODES = [
     symptom: "肩こり・首すじの重さ",
     trigger: "在宅勤務が増えてノートPCで一日中作業。夕方には首が回らないほど重くなる。",
     gaveup: "趣味のヨガ教室を3ヶ月休んでいる。集中力が続かず仕事のミスも増えた。",
-    monster: { name: "カタコリオン", emoji: "👹", intro: "肩に取り憑く重量級のコリ怪人!" },
+    monster: { name: "カタコリオン", emoji: "👹", intro: "肩に取り憑く重量級のコリ怪人!", img:"images/monsters/ep1.jpeg" },
     muscle: {
       name: "僧帽筋(上部線維)",
       reading: "そうぼうきん",
@@ -110,7 +110,7 @@ window.EPISODES = [
     symptom: "腰のだるさ・重さ",
     trigger: "新プロジェクトで残業が3ヶ月続いた。車での外回りが多く、長時間同じ姿勢が続く。",
     gaveup: "週末の草野球を休んでいる。子どもとキャッチボールもできず、申し訳ない気持ちでいっぱい。",
-    monster: { name: "コシオモス", emoji: "🗿", intro: "腰にのしかかる岩石系のだるさ怪人!" },
+    monster: { name: "コシオモス", emoji: "🗿", intro: "腰にのしかかる岩石系のだるさ怪人!", img:"images/monsters/ep2.jpeg" },
     muscle: {
       name: "脊柱起立筋",
       reading: "せきちゅうきりつきん",
@@ -197,7 +197,7 @@ window.EPISODES = [
     symptom: "後頭部の締めつけられるような頭痛",
     trigger: "立ちっぱなしで腕を上げたままの施術が続く。予約が詰まると休憩も取れない。",
     gaveup: "痛み止めが手放せない。休日も頭が重く、娘と出かける気力が出ない。",
-    monster: { name: "ズキンガー", emoji: "🌩️", intro: "後頭部を締め上げる雷雲系の頭痛怪人!" },
+    monster: { name: "ズキンガー", emoji: "🌩️", intro: "後頭部を締め上げる雷雲系の頭痛怪人!", img:"images/monsters/ep3.jpeg" },
     muscle: {
       name: "後頭下筋群",
       reading: "こうとうかきんぐん",
@@ -347,7 +347,7 @@ window.EPISODES = [
     symptom: "お尻の張り",
     trigger: "田植えの時期から中腰で前かがみの作業が毎日続いて…",
     gaveup: "お尻が張って 息子とキャッチボールできない",
-    monster: { name:"デンキング", emoji:"🍑", intro:"グォォ……お尻の張りに苦しむ者を見つけたぞ！" },
+    monster: { name:"デンキング", emoji:"🍑", intro:"グォォ……お尻の張りに苦しむ者を見つけたぞ！", img:"images/monsters/ep6.jpeg" },
     muscle: { name:"大臀筋", reading:"", info:"起始：腸骨翼後面・仙骨・尾骨の後面　停止：大腿骨殿筋粗面・腸脛靭帯　作用：股関節の伸展・外旋　支配神経：下殿神経（第5腰椎〜第2仙椎神経 L5〜S2）" },
     acupoint: { name:"秩辺（ちっぺん）", reading:"", meridian:"膀胱経", location:"第4後仙骨孔と同じ高さ、正中仙骨稜の外方3寸", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"お尻の張りの緩和・大臀筋の緊張解除" },
     script: [
@@ -376,7 +376,7 @@ window.EPISODES = [
     symptom: "頚部痛",
     trigger: "子どもの抱き上げを一日に何十回も…気づいたら首が固まってて。",
     gaveup: "首が痛くて ぐっすり眠れない",
-    monster: { name:"クビゾーン", emoji:"💢", intro:"グォォ……頚部痛に苦しむ者を見つけたぞ！" },
+    monster: { name:"クビゾーン", emoji:"💢", intro:"グォォ……頚部痛に苦しむ者を見つけたぞ！", img:"images/monsters/ep7.jpeg" },
     muscle: { name:"胸鎖乳突筋", reading:"", info:"起始：胸骨柄前面・鎖骨内側1/3　停止：側頭骨乳様突起・後頭骨上項線外側部　作用：頭頸部の屈曲・側屈・対側への回旋　支配神経：副神経・頸神経叢（第2・第3頸椎神経 C2〜C3）　起始部　起始部は鎖骨・胸骨付近じゃ。天窓はもっと上方になる。" },
     acupoint: { name:"天窓（てんそう）", reading:"", meridian:"", location:"扶突の後方、胸鎖乳突筋の後縁で喉頭隆起と同じ高さ", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"頚部痛の緩和・胸鎖乳突筋の緊張解除" },
     script: [
@@ -405,7 +405,7 @@ window.EPISODES = [
     symptom: "ふくらはぎの疲れ",
     trigger: "新規開拓で一日10km以上歩く日が3ヶ月続いてるんです…",
     gaveup: "ふくらはぎが重くて 朝のランニングができない",
-    monster: { name:"フクラハギラー", emoji:"🦶", intro:"グォォ……ふくらはぎの疲れに苦しむ者を見つけたぞ！" },
+    monster: { name:"フクラハギラー", emoji:"🦶", intro:"グォォ……ふくらはぎの疲れに苦しむ者を見つけたぞ！", img:"images/monsters/ep8.jpeg" },
     muscle: { name:"腓腹筋", reading:"", info:"起始：大腿骨内側顆・外側顆の後面　停止：踵骨隆起（アキレス腱を介して）　作用：足関節の底屈・膝関節の屈曲補助　支配神経：脛骨神経（第1・第2仙椎神経 S1〜S2）" },
     acupoint: { name:"承山（しょうざん）", reading:"", meridian:"膀胱経", location:"腓腹筋の二頭が合流する筋腹下端の陥凹部、委中と崑崙を結ぶ線の中点", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"ふくらはぎの疲れの緩和・腓腹筋の緊張解除" },
     script: [
@@ -463,7 +463,7 @@ window.EPISODES = [
     symptom: "股関節の詰まり",
     trigger: "夜間の立ち番で8時間以上同じ姿勢で立ち続けてて…",
     gaveup: "股関節が詰まって 山に近づけない",
-    monster: { name:"コカンモン", emoji:"🦴", intro:"グォォ……股関節の詰まりに苦しむ者を見つけたぞ！" },
+    monster: { name:"コカンモン", emoji:"🦴", intro:"グォォ……股関節の詰まりに苦しむ者を見つけたぞ！", img:"images/monsters/ep10.jpeg" },
     muscle: { name:"梨状筋", reading:"", info:"起始：仙骨前面（第2〜4仙骨孔の外側）　停止：大腿骨大転子尖端　作用：股関節の外旋・外転（屈曲位では内旋）　支配神経：仙骨神経叢（第1・第2仙椎神経 S1〜S2）" },
     acupoint: { name:"環跳（かんちょう）", reading:"", meridian:"", location:"大転子尖端と仙骨裂孔を結ぶ線上、大転子尖端から1/3の点", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"股関節の詰まりの緩和・梨状筋の緊張解除" },
     script: [
@@ -492,7 +492,7 @@ window.EPISODES = [
     symptom: "人差し指付け根の張り",
     trigger: "コンクール前で一日5時間以上弦を押さえ続けて…気づいたら張ってて。",
     gaveup: "人差し指が張って 舞台でバイオリンが弾けない",
-    monster: { name:"ユビオット", emoji:"👆", intro:"グォォ……人差し指付け根の張りに苦しむ者を見つけたぞ！" },
+    monster: { name:"ユビオット", emoji:"👆", intro:"グォォ……人差し指付け根の張りに苦しむ者を見つけたぞ！", img:"images/monsters/ep11.jpeg" },
     muscle: { name:"第1背側骨間筋", reading:"", info:"起始：第1・第2中手骨の対向面　停止：示指基節骨底橈側・伸筋腱膜　作用：示指の外転・MP関節の屈曲補助　支配神経：尺骨神経深枝（第8頸椎〜第1胸椎神経 C8〜T1）　起始：第12胸椎〜第5腰椎椎体・腸骨窩　停止：大腿骨小転子　作用：股関節の屈曲・体幹の前屈補助　支配神経：大腿神経・腰神経叢（第1〜第" },
     acupoint: { name:"腸腰筋", reading:"", meridian:"膀胱経", location:"第1・第2中手骨の中点、第2中手骨橈側の中点", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"人差し指付け根の張りの緩和・第1背側骨間筋の緊張解除" },
     script: [
@@ -522,7 +522,7 @@ window.EPISODES = [
     symptom: "腰痛",
     trigger: "重い資材を繰り返し持ち上げる作業が毎日続いてて…腰にずっと負担が。",
     gaveup: "腰が痛くて 息子の運動会を見届けられない",
-    monster: { name:"コシオーン", emoji:"🪨", intro:"グォォ……腰痛に苦しむ者を見つけたぞ！" },
+    monster: { name:"コシオーン", emoji:"🪨", intro:"グォォ……腰痛に苦しむ者を見つけたぞ！", img:"images/monsters/ep12.jpeg" },
     muscle: { name:"腸腰筋", reading:"", info:"起始：第12胸椎〜第5腰椎椎体・腸骨窩　停止：大腿骨小転子　作用：股関節の屈曲・体幹の前屈補助　支配神経：大腿神経・腰神経叢（第1〜第3腰椎神経 L1〜L3）" },
     acupoint: { name:"大横（だいおう）", reading:"", meridian:"", location:"臍の外方4寸", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"腰痛の緩和・腸腰筋の緊張解除" },
     script: [
@@ -552,7 +552,7 @@ window.EPISODES = [
     symptom: "肩こり",
     trigger: "納期前の1ヶ月画面に顔を近づけて前傾姿勢のまま…頭が前に出てしまって。",
     gaveup: "肩こりがひどくて クリエイターとして終わりかもしれない",
-    monster: { name:"カタコリドラゴン", emoji:"😠", intro:"グォォ……肩こりに苦しむ者を見つけたぞ！" },
+    monster: { name:"カタコリドラゴン", emoji:"😠", intro:"グォォ……肩こりに苦しむ者を見つけたぞ！", img:"images/monsters/ep13.jpeg" },
     muscle: { name:"肩甲挙筋", reading:"", info:"起始：第1〜4頸椎横突起　停止：肩甲骨上角・内側縁上部　作用：肩甲骨の挙上・下方回旋　支配神経：肩甲背神経・頸神経（第3〜第5頸椎神経 C3〜C5）" },
     acupoint: { name:"肩外兪（けんがいゆ）", reading:"", meridian:"", location:"第1胸椎棘突起下縁と第2胸椎棘突起上縁の中点の外方3寸", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"肩こりの緩和・肩甲挙筋の緊張解除" },
     script: [
@@ -582,7 +582,7 @@ window.EPISODES = [
     symptom: "すねのだるさ",
     trigger: "グラウンドで実技指導が増えて…ランニングやサイドステップが毎日続いて。",
     gaveup: "すねが重くて 選手と一緒に動けない",
-    monster: { name:"スネオン", emoji:"🦿", intro:"グォォ……すねのだるさに苦しむ者を見つけたぞ！" },
+    monster: { name:"スネオン", emoji:"🦿", intro:"グォォ……すねのだるさに苦しむ者を見つけたぞ！", img:"images/monsters/ep14.jpeg" },
     muscle: { name:"前脛骨筋", reading:"", info:"起始：脛骨外側面上部2/3・下腿骨間膜　停止：内側楔状骨・第1中足骨底内側面　作用：足関節の背屈・内返し　支配神経：深腓骨神経（第4・第5腰椎神経 L4〜L5）" },
     acupoint: { name:"足三里（あしさんり）", reading:"", meridian:"", location:"犢鼻（膝蓋靱帯外側の陥凹）の下方3寸、脛骨前縁の外方1横指", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"すねのだるさの緩和・前脛骨筋の緊張解除" },
     script: [
@@ -612,7 +612,7 @@ window.EPISODES = [
     symptom: "胸の張り",
     trigger: "ホースを引っ張る動作や重装備での匍匐前進が訓練で続いてて…胸にずっと負担が。",
     gaveup: "胸が張って 家族の前で笑えない",
-    monster: { name:"ムネハリドン", emoji:"💥", intro:"グォォ……胸の張りに苦しむ者を見つけたぞ！" },
+    monster: { name:"ムネハリドン", emoji:"💥", intro:"グォォ……胸の張りに苦しむ者を見つけたぞ！", img:"images/monsters/ep15.jpeg" },
     muscle: { name:"大胸筋", reading:"", info:"起始：鎖骨内側1/2・胸骨前面・第1〜6肋軟骨　停止：上腕骨大結節稜　作用：肩関節の内転・内旋・屈曲　支配神経：内側・外側胸筋神経（第5頸椎〜第1胸椎神経 C5〜T1）" },
     acupoint: { name:"中府（ちゅうふ）", reading:"", meridian:"", location:"前正中線の外方6寸、第1肋間隙と同じ高さ", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"胸の張りの緩和・大胸筋の緊張解除" },
     script: [
@@ -702,7 +702,7 @@ window.EPISODES = [
     symptom: "首の前側の張り",
     trigger: "ノートPCを低い台に置いて一日12時間…顎が前に出てしまって。",
     gaveup: "首の前側が張って ヨガクラスを辞めてしまった",
-    monster: { name:"クビリオン", emoji:"🦒", intro:"グォォ……首の前側の張りに苦しむ者を見つけたぞ！" },
+    monster: { name:"クビリオン", emoji:"🦒", intro:"グォォ……首の前側の張りに苦しむ者を見つけたぞ！", img:"images/monsters/ep18.jpeg" },
     muscle: { name:"斜角筋群", reading:"", info:"起始：第3〜第6頸椎（C3〜C6）横突起前結節（前斜角筋）・第2〜第7頸椎（C2〜C7）横突起後結節（中・後斜角筋）　停止：第1・第2肋骨　作用：頸椎の側屈・前屈・第1・第2肋骨の挙上（吸気補助）　支配神経：頸神経叢・腕神経叢（第3〜第8頸椎神経 C3〜C8）" },
     acupoint: { name:"扶突（ふとつ）", reading:"", meridian:"", location:"甲状軟骨上縁と同じ高さ、胸鎖乳突筋の前縁と後縁の間", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"首の前側の張りの緩和・斜角筋群の緊張解除" },
     script: [
@@ -762,7 +762,7 @@ window.EPISODES = [
     symptom: "肩こり・後頭部の重さ",
     trigger: "一日中パソコンの画面を見続けています。",
     gaveup: "後頭部が重くて 子どもに心配をかけてしまう",
-    monster: { name:"ゼンパンオモス", emoji:"😵", intro:"グォォ……肩こり・後頭部の重さに苦しむ者を見つけたぞ！" },
+    monster: { name:"ゼンパンオモス", emoji:"😵", intro:"グォォ……肩こり・後頭部の重さに苦しむ者を見つけたぞ！", img:"images/monsters/ep20.jpeg" },
     muscle: { name:"後頭下筋群", reading:"", info:"起始：第1頸椎（C1：環椎）の後結節・横突起、第2頸椎（C2：軸椎）の棘突起　停止：後頭骨（下項線）・第1頸椎（C1）横突起　作用：頭部の後屈（両側）・同側回旋・側屈（片側）　支配神経：後頭下神経（第1頸神経後枝 C1後枝）" },
     acupoint: { name:"風池（ふうち）", reading:"", meridian:"大腸経", location:"後頭骨の下方、僧帽筋と胸鎖乳突筋の起始部の間の陥凹部", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"肩こり・後頭部の重さの緩和・後頭下筋群の緊張解除" },
     script: [
@@ -792,7 +792,7 @@ window.EPISODES = [
     symptom: "足首の疲れ",
     trigger: "シーズン中で走り込みとジャンプ着地が毎日続いてるんです。",
     gaveup: "足首が疲れて チームメイトを裏切れない",
-    monster: { name:"アシクビラン", emoji:"🐍", intro:"グォォ……足首の疲れに苦しむ者を見つけたぞ！" },
+    monster: { name:"アシクビラン", emoji:"🐍", intro:"グォォ……足首の疲れに苦しむ者を見つけたぞ！", img:"images/monsters/ep21.jpeg" },
     muscle: { name:"長腓骨筋", reading:"", info:"起始：腓骨頭・腓骨外側面上部2/3　停止：内側楔状骨・第1中足骨底（足底を斜めに横断して）　作用：足関節の底屈・外返し・足底アーチの保持　支配神経：浅腓骨神経（第4・第5腰椎神経・第1仙椎神経 L4〜L5・S1）" },
     acupoint: { name:"懸鐘（けんしょう）", reading:"", meridian:"", location:"外果尖端の上方3寸、腓骨後縁", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"足首の疲れの緩和・長腓骨筋の緊張解除" },
     script: [
@@ -822,7 +822,7 @@ window.EPISODES = [
     symptom: "背中の張り",
     trigger: "早朝から網の引き上げ作業が毎日続いてて…腕を引く動作が何百回も。",
     gaveup: "背中が張って 息子に手伝われてしまった",
-    monster: { name:"セナハリオン", emoji:"🐉", intro:"グォォ……背中の張りに苦しむ者を見つけたぞ！" },
+    monster: { name:"セナハリオン", emoji:"🐉", intro:"グォォ……背中の張りに苦しむ者を見つけたぞ！", img:"images/monsters/ep22.jpeg" },
     muscle: { name:"広背筋", reading:"", info:"起始：第7〜第12胸椎棘突起・腰椎棘突起・仙骨・腸骨稜後部・第9〜第12肋骨・肩甲骨下角　停止：上腕骨小結節稜（結節間溝の内側唇）　作用：肩関節の伸展・内転・内旋　支配神経：胸背神経（第6〜第8頸椎神経 C6〜C8）" },
     acupoint: { name:"天宗（てんそう）", reading:"", meridian:"", location:"肩甲棘中点と肩甲骨下角を結ぶ線上の上1/3の点", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"背中の張りの緩和・広背筋の緊張解除" },
     script: [
@@ -852,7 +852,7 @@ window.EPISODES = [
     symptom: "膝の内側の痛み",
     trigger: "脚を内側に動かすとズキッとして…デモで内転動作を繰り返すのがつらくて。",
     gaveup: "膝の内側が痛くて 自分の体が信用できない",
-    monster: { name:"ヒザウチガード", emoji:"🐢", intro:"グォォ……膝の内側の痛みに苦しむ者を見つけたぞ！" },
+    monster: { name:"ヒザウチガード", emoji:"🐢", intro:"グォォ……膝の内側の痛みに苦しむ者を見つけたぞ！", img:"images/monsters/ep23.jpeg" },
     muscle: { name:"薄筋", reading:"", info:"起始：恥骨結合・恥骨下枝　停止：脛骨内側面（鵞足を形成）　作用：股関節の内転・膝関節の屈曲・下腿の内旋　支配神経：閉鎖神経（第2・第3・第4腰椎神経 L2〜L4）" },
     acupoint: { name:"曲泉（きょくせん）", reading:"", meridian:"肝経", location:"膝内側、半腱・半膜様筋腱の内側の陥凹部、膝窩横紋の内側端", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"膝の内側の痛みの緩和・薄筋の緊張解除" },
     script: [
@@ -912,7 +912,7 @@ window.EPISODES = [
     symptom: "仙腸関節まわりの痛み",
     trigger: "バイクの乗り降りでズキッとして…振動を受け続けるとだんだん固まってきて。",
     gaveup: "仙腸関節が痛くて 子どもに料理を作れない",
-    monster: { name:"センチョウドン", emoji:"🦂", intro:"グォォ……仙腸関節まわりの痛みに苦しむ者を見つけたぞ！" },
+    monster: { name:"センチョウドン", emoji:"🦂", intro:"グォォ……仙腸関節まわりの痛みに苦しむ者を見つけたぞ！", img:"images/monsters/ep25.jpeg" },
     muscle: { name:"多裂筋", reading:"", info:"起始：仙骨後面・後上腸骨棘（PSIS）・腰椎乳頭突起・胸椎横突起・頸椎関節突起　停止：起始椎骨の2〜4椎上位の棘突起　作用：脊柱の伸展・側屈・対側への回旋・椎骨間の安定化　支配神経：脊髄神経後枝（各髄節レベル C3〜S3）" },
     acupoint: { name:"上髎（じょうりょう）", reading:"", meridian:"", location:"第1後仙骨孔に取穴する", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"仙腸関節まわりの痛みの緩和・多裂筋の緊張解除" },
     script: [
@@ -942,7 +942,7 @@ window.EPISODES = [
     symptom: "肩の前側の痛み",
     trigger: "クロールで腕を前に伸ばす動作が繰り返し続いていて。",
     gaveup: "肩の前側が痛くて 水面から上を見ているだけ",
-    monster: { name:"マエカタモン", emoji:"🔥", intro:"グォォ……肩の前側の痛みに苦しむ者を見つけたぞ！" },
+    monster: { name:"マエカタモン", emoji:"🔥", intro:"グォォ……肩の前側の痛みに苦しむ者を見つけたぞ！", img:"images/monsters/ep26.jpeg" },
     muscle: { name:"三角筋前部", reading:"", info:"起始：鎖骨外側1/3（前縁）　停止：上腕骨三角筋粗面　作用：肩関節の屈曲・内旋・水平内転　支配神経：腋窩神経（第5・第6頸椎神経 C5〜C6）" },
     acupoint: { name:"肩髃（けんぐう）", reading:"", meridian:"三焦経", location:"肩関節を90度外転したとき、肩峰前後に現れる2つの陥凹のうち前の陥凹部（肩峰前下縁と上腕骨大結節の間）", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"肩の前側の痛みの緩和・三角筋前部の緊張解除" },
     script: [
@@ -972,7 +972,7 @@ window.EPISODES = [
     symptom: "後頭部の重さ",
     trigger: "長距離運転で首を前に突き出す姿勢がずっと続いて…気づいたら固まってて。",
     gaveup: "後頭部が重くて 空を見上げられない",
-    monster: { name:"コウトウルー", emoji:"💫", intro:"グォォ……後頭部の重さに苦しむ者を見つけたぞ！" },
+    monster: { name:"コウトウルー", emoji:"💫", intro:"グォォ……後頭部の重さに苦しむ者を見つけたぞ！", img:"images/monsters/ep27.jpeg" },
     muscle: { name:"板状筋", reading:"", info:"起始：項靭帯・第3頸椎〜第6胸椎棘突起　停止：側頭骨乳様突起・後頭骨上項線外側部（頭板状筋）・第1〜第3頸椎横突起（頸板状筋）　作用：頭頸部の後屈・側屈・同側への回旋　支配神経：脊髄神経後枝（第2〜第5頸椎神経 C2〜C5）" },
     acupoint: { name:"風府", reading:"", meridian:"胆経", location:"乳様突起後下方の陥凹部（頭板状筋の停止部・乳様突起の後縁直下）", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"後頭部の重さの緩和・板状筋の緊張解除" },
     script: [
@@ -1002,7 +1002,7 @@ window.EPISODES = [
     symptom: "足の冷え",
     trigger: "冬の教室で長時間正座したまま書き続けてて…足が固まってしまって。",
     gaveup: "足が冷えて 弟子の前で倒れそうになった",
-    monster: { name:"アシオン", emoji:"🥶", intro:"グォォ……足の冷えに苦しむ者を見つけたぞ！" },
+    monster: { name:"アシオン", emoji:"🥶", intro:"グォォ……足の冷えに苦しむ者を見つけたぞ！", img:"images/monsters/ep28.jpeg" },
     muscle: { name:"下腿三頭筋", reading:"", info:"起始：大腿骨内側上顆・外側上顆（腓腹筋）・腓骨頭・脛骨後面ヒラメ筋線（ヒラメ筋）　停止：踵骨隆起（アキレス腱を介して）　作用：足関節の底屈・膝関節の屈曲補助（腓腹筋）　支配神経：脛骨神経（第1・第2仙椎神経 S1〜S2）" },
     acupoint: { name:"三陰交（さんいんこう）", reading:"", meridian:"胆経", location:"内果尖端の上方3寸、脛骨内側縁の後際", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"足の冷えの緩和・下腿三頭筋の緊張解除" },
     script: [
@@ -1032,7 +1032,7 @@ window.EPISODES = [
     symptom: "腰から足へのだるさ",
     trigger: "サブ4を目指して週5日走り込んで…3ヶ月続けてきたら脚が重くなってしまって。",
     gaveup: "腰から足がだるくて スタートラインが怖い",
-    monster: { name:"コシアシズルン", emoji:"🌊", intro:"グォォ……腰から足へのだるさに苦しむ者を見つけたぞ！" },
+    monster: { name:"コシアシズルン", emoji:"🌊", intro:"グォォ……腰から足へのだるさに苦しむ者を見つけたぞ！", img:"images/monsters/ep29.jpeg" },
     muscle: { name:"大腿筋膜張筋", reading:"", info:"起始：腸骨前上棘（ASIS）・腸骨稜前部　停止：腸脛靭帯を介して脛骨外側顆（ガーディ結節）　作用：股関節の屈曲・外転・内旋・膝関節の伸展補助　支配神経：上殿神経（第4・第5腰椎〜第1仙椎神経 L4〜S1）" },
     acupoint: { name:"風市（ふうし）", reading:"", meridian:"胆経", location:"大腿外側正中線上、膝窩横紋の上方7寸、腸脛靭帯と大腿二頭筋の間の陥凹部", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"腰から足へのだるさの緩和・大腿筋膜張筋の緊張解除" },
     script: [
@@ -1062,7 +1062,7 @@ window.EPISODES = [
     symptom: "肩の外側の痛み",
     trigger: "施術で腕を横に上げた外転位を長時間保持する動作が続いてて…肩にずっと負担が。",
     gaveup: "肩の外側が痛くて スタッフの前で情けなかった",
-    monster: { name:"ソトカタロン", emoji:"🐲", intro:"グォォ……肩の外側の痛みに苦しむ者を見つけたぞ！" },
+    monster: { name:"ソトカタロン", emoji:"🐲", intro:"グォォ……肩の外側の痛みに苦しむ者を見つけたぞ！", img:"images/monsters/ep30.jpeg" },
     muscle: { name:"棘上筋", reading:"", info:"起始：肩甲骨棘上窩　停止：上腕骨大結節上部　作用：肩関節の外転（初期0〜15度）・上腕骨頭の求心位保持　支配神経：肩甲上神経（第4〜第6頸椎神経 C4〜C6）" },
     acupoint: { name:"秉風（へいふう）", reading:"", meridian:"小腸経", location:"肩甲骨棘上窩の中央・肩甲棘上縁の陥凹部（棘上筋の筋腹の真上）", how:"指の腹で垂直に圧を加え、3〜5秒キープする", caution:"", effect:"肩の外側の痛みの緩和・棘上筋の緊張解除" },
     script: [
