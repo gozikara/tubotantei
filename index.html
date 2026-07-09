@@ -1472,7 +1472,7 @@ function showMoves(){
     b.addEventListener("click", ()=>useMove(i));
     list.appendChild(b);
   });
-  $("mi-hint").textContent = "弱点の経穴を選べ";
+  $("mi-hint").textContent = /経穴|ツボ/.test(q.q) ? "弱点の経穴を選べ" : "正しい答えを選べ";
   $("b-moves").classList.remove("hidden");
 }
 
