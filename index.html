@@ -818,11 +818,12 @@ const SALON_CONTENT = {
   29: "https://members.tubone.jp/",
   30: "https://members.tubone.jp/",
 };
-function openSalon(){
+function openSalon(source){
   if(!SALON.url || SALON.url.indexOf("example.com")>=0){
     alert("(サロンのURLは未設定です)\nコード内 SALON.url を実際の入会ページに差し替えてください。");
     return;
   }
+  if(typeof logEvent==="function") logEvent('salon_cta_click', { source: source||'unknown' });
   try { window.open(SALON.url, "_blank", "noopener"); } catch(e){}
 }
 
@@ -1523,7 +1524,7 @@ function showMiniCTA(ep){
   const el=$("b-cta-mini");
   el.innerHTML = "『"+term+"』、あいまいでしたか？ サロンで基礎から確実に。<span class=\"arw\">▶</span>";
   el.classList.remove("hidden");
-  el.onclick = (e)=>{ e.stopPropagation(); openSalon(); };
+  el.onclick = (e)=>{ e.stopPropagation(); openSalon('mini_cta'); };
 }
 
 function afterTurn(){
@@ -1574,6 +1575,7 @@ function winBattle(){
     const firstClear = !S.cleared[epId(ep)];
     const prevRank = getRank(S.level).name;
     S.cleared[epId(ep)]=true;
+    if(firstClear && typeof logEvent==="function") logEvent('ep_cleared', { ep: ep.ep, perfect: B.perfect });
     // ログイン促進（EP3初回クリア時）
     if(firstClear && ep.ep===3) maybePromptLogin("ep3");
     else if(firstClear && ep.ep===10) maybePromptLogin("ep10");
@@ -1647,7 +1649,10 @@ $("btn-boss-fight").addEventListener("click", ()=>{
 function bossBattleWin(boss, bXp, bCoin){
   if(!S.bossBadges) S.bossBadges = [];
   const allBadgesNow = !S.bossBadges.includes(boss.ep) && BOSSES.every(b=>b.ep===boss.ep || S.bossBadges.includes(b.ep));
-  if(!S.bossBadges.includes(boss.ep)) S.bossBadges.push(boss.ep);
+  if(!S.bossBadges.includes(boss.ep)){
+    S.bossBadges.push(boss.ep);
+    if(typeof logEvent==="function") logEvent('boss_defeated', { ep: boss.ep, name: boss.name, allBadges: allBadgesNow });
+  }
   save();
   maybePromptLogin(allBadgesNow ? "allbadges" : "boss");
   $("bv-badge").textContent = boss.badge;
@@ -1691,7 +1696,7 @@ function showBattleCTA(onClose){
   $("b-cta").classList.remove("hidden");
   ctaOnClose = onClose;
 }
-$("cta-go").addEventListener("click", openSalon);
+$("cta-go").addEventListener("click", ()=>openSalon('battle_result'));
 $("cta-skip").addEventListener("click", ()=>{ if(ctaOnClose){ const f=ctaOnClose; ctaOnClose=null; f(); } });
 
 function animateExp(gain, prevRankName, cb){
@@ -1811,7 +1816,7 @@ function renderTrain(){
     // ログイン
     loginHtml+
     // サロン導線
-    '<button class="fc-salon-btn" style="margin-top:12px" onclick="openSalon()">🎬 オンラインサロンで動画解説を見る →</button>';
+    '<button class="fc-salon-btn" style="margin-top:12px" onclick="openSalon(\'mypage\')">🎬 オンラインサロンで動画解説を見る →</button>';
 }
 
 /* ---------- 暗記カード（フラッシュカード） ---------- */
@@ -1922,7 +1927,7 @@ function answerFlash(known){
         '<div class="fc-salon-cta">'+
           '<div class="t">💡 この内容、動画で理解しませんか？</div>'+
           '<div class="b">'+c.topic+'はサロンで動画解説しています。文字より映像の方が圧倒的に記憶に残ります。</div>'+
-          '<button class="fc-salon-btn" onclick="window.open(\''+salonUrl+'\',\'_blank\',\'noopener\')">🎬 サロンで解説を見る →</button>'+
+          '<button class="fc-salon-btn" onclick="if(typeof logEvent===\'function\')logEvent(\'salon_cta_click\',{source:\'flashcard\',ep:'+c.ep+'});window.open(\''+salonUrl+'\',\'_blank\',\'noopener\')">🎬 サロンで解説を見る →</button>'+
         '</div>'+
         '<div class="fc-btns" style="margin-top:10px"><button class="fc-know" style="background:linear-gradient(#3a5a7a,#2a4560)" onclick="FC.idx++;showFlashCard()">続けて暗記する ▶</button></div>';
     } else {
@@ -2012,6 +2017,41 @@ const fbDb   = firebase.app("game").firestore();
 let fbUser = null;
 let lmShownThisSession = false;
 
+/* ===== 匿名イベント計測（既存アプリと同じ events コレクションに app:"pokemon" タグ付きで記録） ===== */
+function _pkLocalDateStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function _pkGetInstallDate(){
+  let d = localStorage.getItem('pk_install_date_v1');
+  if(!d){ d = _pkLocalDateStr(); localStorage.setItem('pk_install_date_v1', d); }
+  return d;
+}
+function _pkDaysSinceInstall(){
+  const install = new Date(_pkGetInstallDate());
+  const today = new Date(_pkLocalDateStr());
+  return Math.round((today - install) / 86400000);
+}
+function _pkGetAnonId(){
+  let id = localStorage.getItem('pk_anon_id');
+  if(!id){ id = 'anon_' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); localStorage.setItem('pk_anon_id', id); }
+  return id;
+}
+function logEvent(eventName, params={}){
+  try {
+    const uid = fbUser ? fbUser.uid : _pkGetAnonId();
+    fbDb.collection('events').add({
+      app: 'pokemon',
+      uid: uid,
+      isAnon: !fbUser,
+      event: eventName,
+      dayN: _pkDaysSinceInstall(),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      ...params,
+    }).catch(()=>{});
+  } catch(e){}
+}
+
 /* ===== ログインボタンUI更新 ===== */
 function updateFbBtn(user){
   const btn   = document.getElementById("fb-btn");
@@ -2061,10 +2101,12 @@ async function fbLoad(){
 
 /* ===== Googleログイン ===== */
 async function fbGoogleLogin(){
+  logEvent('login_button_click');
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
     await fbAuth.signInWithPopup(provider);
     closeLmModal();
+    logEvent('login_success');
   } catch(e){
     if(e.code !== "auth/popup-closed-by-user") alert("ログインに失敗しました: " + e.message);
   }
@@ -2111,6 +2153,8 @@ function maybePromptLogin(trigger){
 }
 
 /* ===== 認証状態監視 ===== */
+logEvent('app_open', { clearedCount: Object.keys(S.cleared||{}).length, openCount: (typeof tuboOpenCount!=="undefined"?tuboOpenCount:null) });
+
 fbAuth.onAuthStateChanged(async user => {
   fbUser = user;
   updateFbBtn(user);
