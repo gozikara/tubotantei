@@ -1370,7 +1370,7 @@ function startBattle(ep){
         });
       });
     } else {
-      msg("やせいの "+ep.monster.name+"が とびだしてきた！", ()=>{
+      msg("事件現場に "+ep.monster.name+"が 姿を見せた！", ()=>{
         msg("ツボ刑事は しんだんを はじめた！", showCommands);
       });
     }
@@ -1492,7 +1492,7 @@ function useMove(i){
       flash(); shakeEnemy(); damagePop("e", dmg, true);
       B.eHp = Math.max(0, B.eHp - dmg);
       setHp("e", B.eHp/B.eMax);
-      msg("きゅうしょに あたった！ こうかは ばつぐんだ！", ()=>{
+      msg("急所を的確に突いた！ てきめんに効いている！", ()=>{
         msg("💡 "+q.explain, afterTurn);
       });
     });
@@ -1501,7 +1501,7 @@ function useMove(i){
     B.perfect=false; B.wrongs++;
     const back = 8 + Math.floor(ep.ep*1.5);
     msg("ツボ刑事は 『"+chosen+"』を つかった…", ()=>{
-      msg("こうかは いまひとつの ようだ…", ()=>{
+      msg("手応えが薄い…狙いが外れたようだ…", ()=>{
         msg(ep.monster.name+"の はんげき！", ()=>{
           flash(); shakeMine(); damagePop("m", back);
           B.mHp = Math.max(0, B.mHp - back);
@@ -1556,8 +1556,8 @@ function winBattle(){
   if(ep.isBoss){
     const firstBoss = !(S.bossBadges||[]).includes(ep.bossRef.ep);
     const bXp = firstBoss?120:30, bCoin = firstBoss?60:10;
-    msg(ep.monster.name+" を たおした！", ()=>{
-      msg("ツボ刑事は "+bXp+" けいけんちを もらった！ 🪙+"+bCoin, ()=>{
+    msg(ep.monster.name+" を ねじ伏せた！", ()=>{
+      msg("ツボ刑事は "+bXp+" ポイントの捜査経験を積んだ！ 🪙+"+bCoin, ()=>{
         S.coins += bCoin;
         S.xp += bXp;
         while(S.xp >= XP_PER_LEVEL){ S.xp -= XP_PER_LEVEL; S.level++; S.points++; }
@@ -1583,7 +1583,7 @@ function winBattle(){
     let xpGain = firstClear?60:20, coinGain=firstClear?30:8;
     if(B.perfect){ xpGain+=20; coinGain+=10; }
     S.coins+=coinGain;
-    msg("ツボ刑事は "+xpGain+" けいけんちを もらった！"+(B.perfect?" ✨パーフェクト！":""), ()=>{
+    msg("ツボ刑事は "+xpGain+" ポイントの捜査経験を積んだ！"+(B.perfect?" ✨パーフェクト！":""), ()=>{
       animateExp(xpGain, prevRank, ()=>{
         save(); renderHeader();
         const allCleared = EPISODES.every(e=>!!S.cleared[epId(e)]);
@@ -1949,7 +1949,7 @@ function showFlashDone(){
     '<div class="fc-done">'+
       '<div class="big">🎉</div>'+
       '<div class="t">セッション完了！</div>'+
-      '<div class="s">'+FC.total+'枚中 '+FC.mastered+'枚を「覚えた」<br>けいけんち +'+gain+' を獲得！</div>'+
+      '<div class="s">'+FC.total+'枚中 '+FC.mastered+'枚を「覚えた」<br>捜査経験 +'+gain+' を獲得！</div>'+
       '<div class="fc-btns">'+
         '<button class="fc-know" onclick="renderFlashHome()">🔁 もう一周</button>'+
         '<button class="fc-again" style="background:linear-gradient(#3a5a7a,#2a4560)" onclick="go(\'map\')">マップへ</button>'+
