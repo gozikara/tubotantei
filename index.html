@@ -465,10 +465,10 @@
   .pf-login.on { border-color:rgba(80,200,120,.4); color:#8ac8a0; }
 
   /* ===== Firebase ログインUI ===== */
-  #fb-btn { position:fixed; top:10px; right:10px; z-index:200; background:rgba(20,30,45,.92);
+  #fb-btn { position:fixed; top:calc(10px + var(--safe-t)); right:10px; z-index:500; background:rgba(20,30,45,.92);
     border:1px solid rgba(74,158,255,.4); border-radius:20px; padding:5px 12px 5px 8px;
     display:flex; align-items:center; gap:6px; cursor:pointer; font-size:.75rem; color:#cce4ff;
-    font-weight:700; transition:background .2s; }
+    font-weight:700; transition:background .2s; pointer-events:auto; }
   #fb-btn:hover { background:rgba(74,158,255,.2); }
   #fb-avatar { width:22px; height:22px; border-radius:50%; object-fit:cover; display:none; }
   #fb-avatar.show { display:block; }
@@ -860,6 +860,8 @@ const SFX = (() => {
     enter:    ()=>seq([[220,.08,'square',.15],[330,.08,'square',.15]],70),
     critical: ()=>seq([[1047,.05],[1319,.15]],55),
     bonus:    ()=>seq([[784,.07],[880,.07],[1047,.07],[1319,.3]],90),
+    click:    ()=>tone(660,.04,'square',.12),
+    talk:     ()=>tone(392,.035,'square',.09),
   };
 })();
 
@@ -1119,7 +1121,7 @@ function go(scr){
   if(scr==="train") renderTrain();
   $("screen-"+scr).scrollTop = 0;
 }
-document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click", ()=>go(b.dataset.scr)));
+document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click", ()=>{ SFX.click(); go(b.dataset.scr); }));
 
 function renderHeader(){
   const rank = getRank(S.level);
@@ -1316,6 +1318,7 @@ function openStory(ep){
 function advanceDialog(){
   const ep=current;
   if(dialogIdx>=ep.script.length){ $("btn-advance").classList.add("hidden"); $("btn-start-battle").classList.remove("hidden"); return; }
+  SFX.talk();
   const l=ep.script[dialogIdx++];
   const div=document.createElement("div"); div.className="line "+l.speaker;
   const who=WHO[l.speaker]?'<span class="who">'+WHO[l.speaker]+'</span>':"";
@@ -1442,6 +1445,7 @@ function showCommands(){
 }
 $("b-commands").addEventListener("click", (e)=>{
   const btn=e.target.closest(".cmd"); if(!btn) return;
+  SFX.click();
   const c=btn.dataset.cmd;
   if(c==="fight") showMoves();
   else if(c==="hint") doHint();
@@ -2105,10 +2109,16 @@ async function fbLoad(){
 async function fbGoogleLogin(){
   logEvent('login_button_click');
   const provider = new firebase.auth.GoogleAuthProvider();
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   try {
-    await fbAuth.signInWithPopup(provider);
-    closeLmModal();
-    logEvent('login_success');
+    if(isMobile){
+      // iOS Safari等はポップアップがブロックされやすいためリダイレクト方式を使う
+      await fbAuth.signInWithRedirect(provider);
+    } else {
+      await fbAuth.signInWithPopup(provider);
+      closeLmModal();
+      logEvent('login_success');
+    }
   } catch(e){
     if(e.code !== "auth/popup-closed-by-user") alert("ログインに失敗しました: " + e.message);
   }
@@ -2156,6 +2166,13 @@ function maybePromptLogin(trigger){
 
 /* ===== 認証状態監視 ===== */
 logEvent('app_open', { clearedCount: Object.keys(S.cleared||{}).length, openCount: (typeof tuboOpenCount!=="undefined"?tuboOpenCount:null) });
+
+fbAuth.getRedirectResult().then(result => {
+  if(result && result.user){
+    closeLmModal();
+    logEvent('login_success');
+  }
+}).catch(e => { if(e && e.code) console.warn("redirect login error", e.code); });
 
 fbAuth.onAuthStateChanged(async user => {
   fbUser = user;
